@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Splunk Q&A</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#5D5CDE',
+                    }
+                }
+            }
+        }
+        
+        // Check for dark mode preference
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.documentElement.classList.add('dark');
+        }
+        
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
+            if (event.matches) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        });
+    </script>
+</head>
+<body class="bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-200">
+    <div class="container mx-auto px-4 py-8 max-w-4xl">
+        <h1 class="text-3xl font-bold mb-6 text-center text-primary">Splunk Q&A</h1>
+        
+        <div class="flex flex-wrap gap-3 mb-6 sticky top-0 bg-white dark:bg-gray-900 py-3 z-10 border-b border-gray-200 dark:border-gray-700">
+            <button id="showAllBtn" class="px-4 py-2 bg-primary text-white rounded-md hover:bg-opacity-90 transition-all">
+                Show All Answers
+            </button>
+            <button id="hideAllBtn" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 rounded-md hover:bg-opacity-90 transition-all">
+                Hide All Answers
+            </button>
+        </div>
+        
+        <div id="questions-container" class="space-y-6">
+            <!-- Questions will be inserted here via JavaScript -->
+        </div>
+    </div>
+
+    <script>
+        // Question and answer data
+        const qaData = [
+            {
+                question: "What are the primary steps involved in deploying a Splunk search head cluster?",
+                answer: `The deployment process includes:
+• Identifying requirements: Determine cluster size and replication factor.
+• Setting up the deployer: Choose and configure a separate Splunk Enterprise instance to distribute apps and configurations.
+• Installing Splunk Enterprise instances: Install on machines designated as cluster members.
+• Initializing cluster members: Configure each member with necessary settings.
+• Bringing up the cluster captain: One member becomes the captain to coordinate activities.
+• Performing post-deployment setup: Connect to search peers, set up load balancers, and verify the cluster's health.`
+            },
+            {
+                question: "What is the role of the deployer in a search head cluster?",
+                answer: `The deployer is a Splunk Enterprise instance used to distribute apps and certain configuration updates to search head cluster members. It ensures consistency across the cluster by pushing configuration bundles to all members. The deployer must reside outside the cluster and cannot be a cluster member.`
+            },
+            {
+                question: "Why is a replication factor important in a search head cluster, and how is it determined?",
+                answer: `The replication factor determines the number of copies of search artifacts the cluster maintains. A higher replication factor enhances fault tolerance by ensuring that if one member fails, replicated data is available on other members. The optimal replication factor balances between desired fault tolerance and storage capacity.`
+            },
+            {
+                question: "Can a single-member search head cluster be deployed, and what are its implications?",
+                answer: `Yes, a single-member search head cluster can be deployed, primarily for testing or initial setup with plans to scale later. However, it doesn't provide high availability. When scaling, it's recommended to expand directly to at least three members to ensure stability and proper captain election.`
+            },
+            {
+                question: "What are the system requirements for search head cluster members?",
+                answer: `Each member must:
+• Run on its own machine or virtual machine.
+• Use the same operating system and version as other members.
+• Run the same version of Splunk Enterprise.
+• Be connected over a high-speed network.
+• Have sufficient storage to accommodate replicated search artifacts, considering the replication factor.`
+            },
+            {
+                question: "How does the captain function within a search head cluster?",
+                answer: `The captain is a designated member that coordinates cluster-wide activities, including job scheduling and replication. If the captain fails, another member is automatically elected to take over, ensuring continuous operation without a single point of failure.`
+            },
+            {
+                question: "What configurations are managed by the deployer versus those replicated automatically?",
+                answer: `The deployer manages:
+• New or upgraded apps.
+• Configuration files edited directly, such as indexes.conf or inputs.conf.
+• Non-search-related updates.
+
+In contrast, the cluster automatically replicates runtime changes to knowledge objects, like saved searches or dashboards, across all members.`
+            },
+            {
+                question: "Why is it crucial to use the deployer for app distribution in a search head cluster?",
+                answer: `Using the deployer ensures that all cluster members receive consistent app configurations. Directly installing apps on individual members can lead to inconsistencies and conflicts, especially during cluster expansions or when members rejoin after downtime.`
+            },
+            {
+                question: "What is the purpose of the pass4SymmKey in a search head cluster?",
+                answer: `The pass4SymmKey is a shared secret key used for authentication between the deployer and cluster members. It ensures secure communication and must be identical across all members and the deployer. A mismatch can prevent successful deployment of configuration bundles.`
+            },
+            {
+                question: "How does a load balancer enhance a search head cluster deployment?",
+                answer: `A load balancer distributes user search requests across multiple search head cluster members, optimizing resource utilization and ensuring high availability. It provides a single point of access for users, abstracting the underlying cluster complexity.`
+            },
+            {
+                question: "What is the function of search artifact replication in a search head cluster?",
+                answer: `Search artifact replication ensures that search-related data (like search jobs, reports, and user artifacts) are available across multiple members of the cluster. This replication supports failover and high availability--if one member goes down, others still have access to the artifacts needed to continue operations. The replication process is managed automatically by the captain.`
+            },
+            {
+                question: "How does a member join an existing search head cluster?",
+                answer: `To join an existing cluster, a member must:
+• Be installed and configured with the correct server.conf and shcluster.conf settings.
+• Use the splunk init shcluster-config command to initialize the member.
+• Run the splunk bootstrap shcluster-captain or use splunk add shcluster-member from another member (usually the captain) to add the new member.
+• Share the same pass4SymmKey, replication port, and cluster label as other members.`
+            },
+            {
+                question: "What happens if two members are mistakenly initialized with the bootstrap command?",
+                answer: `Using splunk bootstrap shcluster-captain on more than one member creates a cluster split-brain condition. This results in two captains and inconsistent state replication. Splunk recommends bootstrapping only one member to avoid this. If a split occurs, you must manually reset and rejoin the cluster properly.`
+            },
+            {
+                question: "Can you upgrade Splunk Enterprise in a search head cluster without downtime? How?",
+                answer: `Yes, by performing a rolling upgrade:
+• Upgrade non-captain members one at a time.
+• Let them rejoin the cluster.
+• Upgrade the captain last (or force a captain handover to upgrade it).
+• This method ensures continuous availability, although some transient inconsistencies in replicated data might occur during the process.`
+            },
+            {
+                question: "What are common challenges or misconfigurations during SHC deployment?",
+                answer: `Common issues include:
+• Mismatched pass4SymmKey between deployer and members.
+• Incorrect replication ports or firewalls blocking cluster communication.
+• Failing to use the deployer for app deployment, leading to inconsistent configurations.
+• Misuse of the bootstrap command on multiple members.
+• Overlooking time synchronization (NTP is recommended across all members to avoid replication errors).`
+            },
+            {
+                question: "What is the role of the manager node in a Splunk indexer cluster?",
+                answer: `The manager node controls index replication, distributes configuration bundles to peers, and informs the search head about which peers to search.`
+            },
+            {
+                question: "What is the default replication and search factor in a Splunk cluster?",
+                answer: `• Replication Factor (RF): 3
+• Search Factor (SF): 2`
+            },
+            {
+                question: "What does the pass4SymmKey do in a Splunk cluster?",
+                answer: `It authenticates communication between cluster nodes and must be the same across all cluster instances.`
+            },
+            {
+                question: "Can you use a free license for clustering in Splunk?",
+                answer: `No. A free license cannot be used in clustered environments.`
+            },
+            {
+                question: "What are the three Splunk server roles in indexer clustering?",
+                answer: `• Manager Node
+• Peer Node
+• Search Head`
+            },
+            {
+                question: "What configuration file is used to enable clustering in Splunk?",
+                answer: `server.conf`
+            },
+            {
+                question: "How is data replicated in a single-site cluster with RF=3 and SF=2?",
+                answer: `There are 3 copies of raw data, and 2 of them must be searchable (contain tsidx files).`
+            },
+            {
+                question: "How is disk usage estimated for clusters?",
+                answer: `Estimate using:
+• ~15% of daily index data for raw data
+• ~35% of daily index data for index files`
+            },
+            {
+                question: "What command is used to configure a manager node?",
+                answer: `./splunk edit cluster-config -mode manager -replication_factor 2 -search_factor 2 -secret mycluster`
+            },
+            {
+                question: "Can search heads belong to multiple indexer clusters?",
+                answer: `Yes, they can. You use splunk add cluster-manager to configure them.`
+            },
+            {
+                question: "What is a searchable bucket?",
+                answer: `A bucket that contains both raw data and index files (tsidx), allowing it to be searched.`
+            },
+            {
+                question: "What are the components of a clustered bucket name?",
+                answer: `• Newest/oldest time
+• Local ID
+• GUID (originating peer's unique ID)`
+            },
+            {
+                question: "How are generations used in clustering?",
+                answer: `Generations track the state of searchable bucket primaries as peers leave and rejoin the cluster.`
+            },
+            {
+                question: "What happens during a rolling restart?",
+                answer: `A percentage of peer nodes restart sequentially to avoid service interruption.`
+            },
+            {
+                question: "What command performs a rolling restart?",
+                answer: `./splunk rolling-restart cluster-peers`
+            },
+            {
+                question: "What is maintenance mode in Splunk clusters?",
+                answer: `A mode that suspends bucket fix-ups and replication during maintenance tasks like upgrades.`
+            },
+            {
+                question: "How are configuration bundles pushed to peers?",
+                answer: `Through the manager node, using:
+./splunk apply cluster-bundle`
+            },
+            {
+                question: "What does the repFactor = auto setting do in indexes.conf?",
+                answer: `It tells the cluster to replicate the index automatically according to the cluster's RF.`
+            },
+            {
+                question: "Can peer nodes be downgraded to non-clustered indexers?",
+                answer: `No, once a node is part of a cluster, it cannot be reverted to standalone.`
+            },
+            {
+                question: "What are the benefits of multisite clustering?",
+                answer: `• Disaster recovery
+• Search affinity
+• Geographic redundancy`
+            },
+            {
+                question: "What is site_replication_factor?",
+                answer: `Specifies how raw data is distributed across sites. Example: origin:1,total:2.`
+            },
+            {
+                question: "What is site_search_factor?",
+                answer: `Specifies how many copies of searchable data are distributed across sites. Example: origin:1,total:2.`
+            },
+            {
+                question: "What does the multisite=true setting do?",
+                answer: `Enables multisite clustering in the configuration.`
+            },
+            {
+                question: "What are the common Splunk cluster ports?",
+                answer: `• 8089 (management)
+• 9100 (replication)
+• 9997 (data receiving)`
+            },
+            {
+                question: "How do you convert a single-site cluster to a multisite one?",
+                answer: `• Switch manager and peer nodes to multisite mode.
+• Restart nodes in maintenance mode.
+• Use splunk edit cluster-manager.`
+            },
+            {
+                question: "What is search affinity in multisite clusters?",
+                answer: `It ensures that searches are run preferentially on local searchable copies, reducing WAN traffic.`
+            },
+            {
+                question: "How is search affinity disabled?",
+                answer: `Edit the search head configuration and set a default site with site = site0.`
+            },
+            {
+                question: "What happens to legacy single-site buckets after migration?",
+                answer: `They follow original RF/SF unless constrain_singlesite_buckets=false is set.`
+            },
+            {
+                question: "What is the command to show cluster status?",
+                answer: `./splunk show cluster-status --verbose`
+            },
+            {
+                question: "What are the log files used for cluster diagnostics?",
+                answer: `• splunkd_access.log
+• splunkd.log
+• metrics.log`
+            },
+            {
+                question: "What is the function of \"generations\" in a Splunk indexer cluster?",
+                answer: `Generations track the primary copies of buckets during cluster transitions. When a peer fails, the cluster increments the generation and reassigns primaries accordingly.`
+            },
+            {
+                question: "What is a primary bucket in clustering?",
+                answer: `A primary bucket is the one actively used for searches. Only one primary exists per bucket group at a time.`
+            },
+            {
+                question: "What happens when there are excess buckets?",
+                answer: `Excess buckets are redundant copies exceeding RF or SF requirements. The manager node detects and removes them to save space.`
+            },
+            {
+                question: "How does the cluster manager determine searchable rolling restart order?",
+                answer: `It restarts 10% of peers at a time (configurable), maintaining cluster health throughout.`
+            },
+            {
+                question: "How do you initiate a searchable rolling restart?",
+                answer: `splunk rolling-restart cluster-peers`
+            },
+            {
+                question: "What is the impact of maintenance mode on replication?",
+                answer: `Replication and bucket fix-up are paused. This avoids unnecessary data duplication during maintenance tasks.`
+            },
+            {
+                question: "How do you enable maintenance mode?",
+                answer: `splunk enable maintenance-mode`
+            },
+            {
+                question: "How are peers configured in a multisite environment?",
+                answer: `Each peer includes its site designation and manager_uri in server.conf under [clustering].`
+            },
+            {
+                question: "What is site replication factor format?",
+                answer: `Example: site_replication_factor = origin:2,total:3`
+            }
+        ];
+
+        // Function to create the question elements
+        function createQuestionElements() {
+            const container = document.getElementById('questions-container');
+            
+            qaData.forEach((qa, index) => {
+                const questionNumber = index + 1;
+                const questionDiv = document.createElement('div');
+                questionDiv.className = 'border border-gray-200 dark:border-gray-700 rounded-lg p-4 shadow-sm hover:shadow-md transition-all';
+                
+                const questionHeader = document.createElement('div');
+                questionHeader.className = 'flex justify-between items-center cursor-pointer';
+                questionHeader.onclick = () => toggleAnswer(questionNumber);
+                
+                const questionTitle = document.createElement('h2');
+                questionTitle.className = 'font-semibold text-lg';
+                questionTitle.textContent = `${questionNumber}. ${qa.question}`;
+                
+                const toggleButton = document.createElement('button');
+                toggleButton.className = 'text-primary hover:text-opacity-80 font-medium';
+                toggleButton.id = `toggle-${questionNumber}`;
+                toggleButton.textContent = 'Show Answer';
+                
+                const answerDiv = document.createElement('div');
+                answerDiv.className = 'mt-3 pt-3 border-t border-gray-100 dark:border-gray-800 hidden whitespace-pre-line';
+                answerDiv.id = `answer-${questionNumber}`;
+                answerDiv.textContent = qa.answer;
+                
+                questionHeader.appendChild(questionTitle);
+                questionHeader.appendChild(toggleButton);
+                questionDiv.appendChild(questionHeader);
+                questionDiv.appendChild(answerDiv);
+                
+                container.appendChild(questionDiv);
+            });
+        }
+        
+        // Function to toggle a specific answer
+        function toggleAnswer(questionNumber) {
+            const answerDiv = document.getElementById(`answer-${questionNumber}`);
+            const toggleButton = document.getElementById(`toggle-${questionNumber}`);
+            
+            if (answerDiv.classList.contains('hidden')) {
+                answerDiv.classList.remove('hidden');
+                toggleButton.textContent = 'Hide Answer';
+            } else {
+                answerDiv.classList.add('hidden');
+                toggleButton.textContent = 'Show Answer';
+            }
+        }
+        
+        // Function to show all answers
+        function showAllAnswers() {
+            qaData.forEach((_, index) => {
+                const questionNumber = index + 1;
+                const answerDiv = document.getElementById(`answer-${questionNumber}`);
+                const toggleButton = document.getElementById(`toggle-${questionNumber}`);
+                
+                answerDiv.classList.remove('hidden');
+                toggleButton.textContent = 'Hide Answer';
+            });
+        }
+        
+        // Function to hide all answers
+        function hideAllAnswers() {
+            qaData.forEach((_, index) => {
+                const questionNumber = index + 1;
+                const answerDiv = document.getElementById(`answer-${questionNumber}`);
+                const toggleButton = document.getElementById(`toggle-${questionNumber}`);
+                
+                answerDiv.classList.add('hidden');
+                toggleButton.textContent = 'Show Answer';
+            });
+        }
+        
+        // Initialize the app
+        document.addEventListener('DOMContentLoaded', () => {
+            createQuestionElements();
+            
+            document.getElementById('showAllBtn').addEventListener('click', showAllAnswers);
+            document.getElementById('hideAllBtn').addEventListener('click', hideAllAnswers);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Splunk Power User Practice Questions</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#5D5CDE',
+                    }
+                }
+            }
+        }
+        
+        // Check for dark mode preference
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.documentElement.classList.add('dark');
+        }
+        
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
+            if (event.matches) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        });
+    </script>
+</head>
+<body class="bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-200 p-4 md:p-8">
+    <div class="max-w-4xl mx-auto">
+        <header class="mb-6">
+            <h1 class="text-3xl font-bold mb-2">📝 Splunk Power User Practice Questions (with Answers)</h1>
+            <p class="text-xl">Total Questions: 65</p>
+        </header>
+
+        <!-- SPL Searching & Reporting Section -->
+        <section class="mb-8">
+            <h2 class="text-2xl font-bold mb-4 bg-primary/10 p-2 rounded">🔍 1. SPL Searching & Reporting (22%) -- ~14 Questions</h2>
+            
+            <div class="space-y-6">
+                <div class="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                    <p class="font-medium mb-2"><span class="font-bold">1.</span> Which SPL command removes duplicate values of a specified field?</p>
+                    <ul class="ml-6 list-[lower-alpha] space-y-1">
+                        <li>dedup</li>
+                        <li>sort</li>
+                        <li>stats</li>
+                        <li>unique</li>
+                    </ul>
+                    <p class="mt-2 text-green-600 dark:text-green-400 font-medium">✅ Answer: a) dedup</p>
+                </div>
+
+                <div class="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                    <p class="font-medium mb-2"><span class="font-bold">2.</span> What does the stats count by host command return?</p>
+                    <ul class="ml-6 list-[lower-alpha] space-y-1">
+                        <li>Number of unique events</li>
+                        <li>Number of events per host</li>
+                        <li>Sum of all fields</li>
+                        <li>Average count per host</li>
+                    </ul>
+                    <p class="mt-2 text-green-600 dark:text-green-400 font-medium">✅ Answer: b) Number of events per host</p>
+                </div>
+
+                <div class="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                    <p class="font-medium mb-2"><span class="font-bold">3.</span> Which of these commands transforms events into statistical tables?</p>
+                    <ul class="ml-6 list-[lower-alpha] space-y-1">
+                        <li>where</li>
+                        <li>eval</li>
+                        <li>stats</li>
+                        <li>search</li>
+                    </ul>
+                    <p class="mt-2 text-green-600 dark:text-green-400 font-medium">✅ Answer: c) stats</p>
+                </div>
+
+                <div class="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                    <p class="font-medium mb-2"><span class="font-bold">4.</span> Which command calculates a running total?</p>
+                    <ul class="ml-6 list-[lower-alpha] space-y-1">
+                        <li>streamstats</li>
+                        <li>stats</li>
+                        <li>dedup</li>
+                        <li>top</li>
+                    </ul>
+                    <p class="mt-2 text-green-600 dark:text-green-400 font-medium">✅ Answer: a) streamstats</p>
+                </div>
+
+                <div class="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                    <p class="font-medium mb-2"><span class="font-bold">5.</span> What command is used to group events sharing the same field values into transactions?</p>
+                    <ul class="ml-6 list-[lower-alpha] space-y-1">
+                        <li>group</li>
+                        <li>transaction</li>
+                        <li>join</li>
+                        <li>append</li>
+                    </ul>
+                    <p class="mt-2 text-green-600 dark:text-green-400 font-medium">✅ Answer: b) transaction</p>
+                </div>
+
+                <div class="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                    <p class="font-medium mb-2"><span class="font-bold">6.</span> Which command is used to assign a calculated value to a field?</p>
+                    <ul class="ml-6 list-[lower-alpha] space-y-1">
+                        <li>eval</li>
+                        <li>where</li>
+                        <li>lookup</li>
+                        <li>dedup</li>
+                    </ul>
+                    <p class="mt-2 text-green-600 dark:text-green-400 font-medium">✅ Answer: a) eval</p>
+                </div>
+
+                <div class="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                    <p class="font-medium mb-2"><span class="font-bold">7.</span> How can you display events containing the term "error" but not "404"?</p>
+                    <ul class="ml-6 list-[lower-alpha] space-y-1">
+                        <li>error NOT 404</li>
+                        <li>error AND NOT 404</li>
+                        <li>error -404</li>
+                        <li>error EXCEPT 404</li>
+                    </ul>
+                    <p class="mt-2 text-green-600 dark:text-green-400 font-medium">✅ Answer: b) error AND NOT 404</p>
+                </div>
+
+                <div class="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                    <p class="font-medium mb-2"><span class="font-bold">8.</span> Which command returns the first value of a field by time order?</p>
+                    <ul class="ml-6 list-[lower-alpha] space-y-1">
+                        <li>earliest</li>
+                        <li>head</li>
+                        <li>first</li>
+                        <li>top</li>
+                    </ul>
+                    <p class="mt-2 text-green-600 dark:text-green-400 font-medium">✅ Answer: c) first</p>
+                </div>
+
+                <div class="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                    <p class="font-medium mb-2"><span class="font-bold">9.</span> Which command can display data over time in a time-series chart?</p>
+                    <ul class="ml-6 list-[lower-alpha] space-y-1">
+                        <li>stats</li>
+                        <li>timechart</li>
+                        <li>chart</li>
+                        <li>table</li>
+                    </ul>
+                    <p class="mt-2 text-green-600 dark:text-green-400 font-medium">✅ Answer: b) timechart</p>
+                </div>
+
+                <div class="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                    <p class="font-medium mb-2"><span class="font-bold">10.</span> What does the top command return?</p>
+                    <ul class="ml-6 list-[lower-alpha] space-y-1">
+                        <li>Only the first 5 events</li>
+                        <li>The top values of a field</li>
+                        <li>Sorted table</li>
+                        <li>Transaction list</li>
+                    </ul>
+                    <p class="mt-2 text-green-600 dark:text-green-400 font-medium">✅ Answer: b) The top values of a field</p>
+                </div>
+
+                <div class="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                    <p class="font-medium mb-2"><span class="font-bold">11.</span> Which function can count distinct values of a field?</p>
+                    <ul class="ml-6 list-[lower-alpha] space-y-1">
+                        <li>count</li>
+                        <li>sum</li>
+                        <li>dc</li>
+                        <li>values</li>
+                    </ul>
+                    <p class="mt-2 text-green-600 dark:text-green-400 font-medium">✅ Answer: c) dc</p>
+                </div>
+
+                <div class="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                    <p class="font-medium mb-2"><span class="font-bold">12.</span> Which clause limits the number of results returned?</p>
+                    <ul class="ml-6 list-[lower-alpha] space-y-1">
+                        <li>limit</li>
+                        <li>head</li>
+                        <li>tail</li>
+                        <li>sample</li>
+                    </ul>
+                    <p class="mt-2 text-green-600 dark:text-green-400 font-medium">✅ Answer: b) head</p>
+                </div>
+
+                <div class="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                    <p class="font-medium mb-2"><span class="font-bold">13.</span> To calculate the percentage of errors out of all events, which combination is correct?</p>
+                    <ul class="ml-6 list-[lower-alpha] space-y-1">
+                        <li>stats count(eval(error)) / stats count</li>
+                        <li>eval error_rate = error/total</li>
+                        <li>stats count(eval(error)) AS error_count, count AS total | eval rate = error_count/total</li>
+                        <li>top error by total</li>
+                    </ul>
+                    <p class="mt-2 text-green-600 dark:text-green-400 font-medium">✅ Answer: c) stats count(eval(error)) AS error_count, count AS total | eval rate = error_count/total</p>
+                </div>
+
+                <div class="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                    <p class="font-medium mb-2"><span class="font-bold">14.</span> Which function returns a list of all values for a field?</p>
+                    <ul class="ml-6 list-[lower-alpha] space-y-1">
+                        <li>list()</li>
+                        <li>values()</li>
+                        <li>count()</li>
+                        <li>sum()</li>
+                    </ul>
+                    <p class="mt-2 text-green-600 dark:text-green-400 font-medium">✅ Answer: b) values()</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Knowledge Objects Section -->
+        <section class="mb-8">
+            <h2 class="text-2xl font-bold mb-4 bg-primary/10 p-2 rounded">📚 2. Knowledge Objects (15%) -- ~10 Questions</h2>
+            
+            <div class="space-y-6">
+                <div class="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                    <p class="font-medium mb-2"><span class="font-bold">15.</span> Which knowledge object is used to tag events for easier identification?</p>
+                    <ul class="ml-6 list-[lower-alpha] space-y-1">
+                        <li>lookup</li>
+                        <li>saved search</li>
+                        <li>event type</li>
+                        <li>macro</li>
+                    </ul>
+                    <p class="mt-2 text-green-600 dark:text-green-400 font-medium">✅ Answer: c) event type</p>
+                </div>
+
+                <div class="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                    <p class="font-medium mb-2"><span class="font-bold">16.</span> What is a lookup table used for?</p>
+                    <ul class="ml-6 list-[lower-alpha] space-y-1">
+                        <li>Color-coding dashboards</li>
+                        <li>Comparing field values to an external file</li>
+                        <li>Limiting searches</li>
+                        <li>Indexing data</li>
+                    </ul>
+                    <p class="mt-2 text-green-600 dark:text-green-400 font-medium">✅ Answer: b) Comparing field values to an external file</p>
+                </div>
+
+                <div class="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                    <p class="font-medium mb-2"><span class="font-bold">17.</span> Which field is required in a CSV lookup file?</p>
+                    <ul class="ml-6 list-[lower-alpha] space-y-1">
+                        <li>_time</li>
+                        <li>_raw</li>
+                        <li>At least one key field</li>
+                        <li>sourcetype</li>
+                    </ul>
+                    <p class="mt-2 text-green-600 dark:text-green-400 font-medium">✅ Answer: c) At least one key field</p>
+                </div>
+
+                <div class="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                    <p class="font-medium mb-2"><span class="font-bold">18.</span> What allows a user to apply a label to fields across datasets?</p>
+                    <ul class="ml-6 list-[lower-alpha] space-y-1">
+                        <li>Tags</li>
+                        <li>Macros</li>
+                        <li>Reports</li>
+                        <li>Fields.conf</li>
+                    </ul>
+                    <p class="mt-2 text-green-600 dark:text-green-400 font-medium">✅ Answer: a) Tags</p>
+                </div>
+
+                <div class="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                    <p class="font-medium mb-2"><span class="font-bold">19.</span> Which knowledge object allows dynamic replacement in SPL?</p>
+                    <ul class="ml-6 list-[lower-alpha] space-y-1">
+                        <li>Macros</li>
+                        <li>Tags</li>
+                        <li>Reports</li>
+                        <li>Transactions</li>
+                    </ul>
+                    <p class="mt-2 text-green-600 dark:text-green-400 font-medium">✅ Answer: a) Macros</p>
+                </div>
+
+                <div class="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                    <p class="font-medium mb-2"><span class="font-bold">20.</span> Which knowledge object saves SPL with a name for later use?</p>
+                    <ul class="ml-6 list-[lower-alpha] space-y-1">
+                        <li>Dashboard</li>
+                        <li>Report</li>
+                        <li>Event type</li>
+                        <li>Macro</li>
+                    </ul>
+                    <p class="mt-2 text-green-600 dark:text-green-400 font-medium">✅ Answer: b) Report</p>
+                </div>
+
+                <div class="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                    <p class="font-medium mb-2"><span class="font-bold">21.</span> To associate external metadata with Splunk data, use a:</p>
+                    <ul class="ml-6 list-[lower-alpha] space-y-1">
+                        <li>Lookup definition</li>
+                        <li>Field alias</li>
+                        <li>Sourcetype override</li>
+                        <li>Event mask</li>
+                    </ul>
+                    <p class="mt-2 text-green-600 dark:text-green-400 font-medium">✅ Answer: a) Lookup definition</p>
+                </div>
+
+                <div class="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                    <p class="font-medium mb-2"><span class="font-bold">22.</span> Which object lets you search based on a pre-defined classification?</p>
+                    <ul class="ml-6 list-[lower-alpha] space-y-1">
+                        <li>Lookup</li>
+                        <li>Event type</li>
+                        <li>Transaction</li>
+                        <li>Report</li>
+                    </ul>
+                    <p class="mt-2 text-green-600 dark:text-green-400 font-medium">✅ Answer: b) Event type</p>
+                </div>
+
+                <div class="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                    <p class="font-medium mb-2"><span class="font-bold">23.</span> Which knowledge object can schedule alerting functionality?</p>
+                    <ul class="ml-6 list-[lower-alpha] space-y-1">
+                        <li>Saved search</li>
+                        <li>Data model</li>
+                        <li>Field alias</li>
+                        <li>Macro</li>
+                    </ul>
+                    <p class="mt-2 text-green-600 dark:text-green-400 font-medium">✅ Answer: a) Saved search</p>
+                </div>
+
+                <div class="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                    <p class="font-medium mb-2"><span class="font-bold">24.</span> To simplify recurring search logic, use:</p>
+                    <ul class="ml-6 list-[lower-alpha] space-y-1">
+                        <li>Macros</li>
+                        <li>Tags</li>
+                        <li>Inputs.conf</li>
+                        <li>Transaction</li>
+                    </ul>
+                    <p class="mt-2 text-green-600 dark:text-green-400 font-medium">✅ Answer: a) Macros</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Dashboards & Visualizations Section -->
+        <section class="mb-8">
+            <h2 class="text-2xl font-bold mb-4 bg-primary/10 p-2 rounded">📊 3. Dashboards & Visualizations (15%) -- ~10 Questions</h2>
+            
+            <div class="space-y-6">
+                <div class="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                    <p class="font-medium mb-2"><span class="font-bold">25.</span> What is a drilldown used for in a dashboard?</p>
+                    <ul class="ml-6 list-[lower-alpha] space-y-1">
+                        <li>Extracting fields</li>
+                        <li>Navigating to detailed views</li>
+                        <li>Coloring panels</li>
+                        <li>Exporting searches</li>
+                    </ul>
+                    <p class="mt-2 text-green-600 dark:text-green-400 font-medium">✅ Answer: b) Navigating to detailed views</p>
+                </div>
+
+                <div class="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                    <p class="font-medium mb-2"><span class="font-bold">26.</span> Which tag allows dynamic interaction between panels?</p>
+                    <ul class="ml-6 list-[lower-alpha] space-y-1">
+                        <li>&lt;filter&gt;</li>
+                        <li>&lt;token&gt;</li>
+                        <li>&lt;eval&gt;</li>
+                        <li>&lt;event&gt;</li>
+                    </ul>
+                    <p class="mt-2 text-green-600 dark:text-green-400 font-medium">✅ Answer: b) &lt;token&gt;</p>
+                </div>
+
+                <div class="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                    <p class="font-medium mb-2"><span class="font-bold">27.</span> Which of these is a visualization type in Splunk?</p>
+                    <ul class="ml-6 list-[lower-alpha] space-y-1">
+                        <li>Pie chart</li>
+                        <li>Summary table</li>
+                        <li>Sankey diagram</li>
+                        <li>Data cube</li>
+                    </ul>
+                    <p class="mt-2 text-green-600 dark:text-green-400 font-medium">✅ Answer: a) Pie chart</p>
+                </div>
+
+                <div class="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                    <p class="font-medium mb-2"><span class="font-bold">28.</span> To create a dashboard panel, you must define at least:</p>
+                    <ul class="ml-6 list-[lower-alpha] space-y-1">
+                        <li>Title</li>
+                        <li>Search string</li>
+                        <li>Field alias</li>
+                        <li>Eval function</li>
+                    </ul>
+                    <p class="mt-2 text-green-600 dark:text-green-400 font-medium">✅ Answer: b) Search string</p>
+                </div>
+
+                <div class="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                    <p class="font-medium mb-2"><span class="font-bold">29.</span> Which file format is used to define dashboards in XML?</p>
+                    <ul class="ml-6 list-[lower-alpha] space-y-1">
+                        <li>dashboard.conf</li>
+                        <li>default.xml</li>
+                        <li>view.xml</li>
+                        <li>form.xml</li>
+                    </ul>
+                    <p class="mt-2 text-green-600 dark:text-green-400 font-medium">✅ Answer: c) view.xml</p>
+                </div>
+
+                <div class="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                    <p class="font-medium mb-2"><span class="font-bold">30.</span> To pass a value between dashboard inputs and panels, use:</p>
+                    <ul class="ml-6 list-[lower-alpha] space-y-1">
+                        <li>lookup</li>
+                        <li>token</li>
+                        <li>macro</li>
+                        <li>eventtype</li>
+                    </ul>
+                    <p class="mt-2 text-green-600 dark:text-green-400 font-medium">✅ Answer: b) token</p>
+                </div>
+
+                <div class="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                    <p class="font-medium mb-2"><span class="font-bold">31.</span> How can you limit results displayed in a visualization?</p>
+                    <ul class="ml-6 list-[lower-alpha] space-y-1">
+                        <li>Using head or limit</li>
+                        <li>Editing props.conf</li>
+                        <li>Reducing font size</li>
+                        <li>Disabling tokens</li>
+                    </ul>
+                    <p class="mt-2 text-green-600 dark:text-green-400 font-medium">✅ Answer: a) Using head or limit</p>
+                </div>
+
+                <div class="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                    <p class="font-medium mb-2"><span class="font-bold">32.</span> What happens if you omit title in a dashboard panel?</p>
+                    <ul class="ml-6 list-[lower-alpha] space-y-1">
+                        <li>Panel is not rendered</li>
+                        <li>Panel uses default title</li>
+                        <li>Panel is hidden</li>
+                        <li>Panel throws error</li>
+                    </ul>
+                    <p class="mt-2 text-green-600 dark:text-green-400 font-medium">✅ Answer: b) Panel uses default title</p>
+                </div>
+
+                <div class="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                    <p class="font-medium mb-2"><span class="font-bold">33.</span> Which option lets users choose a time range in a dashboard?</p>
+                    <ul class="ml-6 list-[lower-alpha] space-y-1">
+                        <li>dropdown</li>
+                        <li>time picker</li>
+                        <li>date filter</li>
+                        <li>range slider</li>
+                    </ul>
+                    <p class="mt-2 text-green-600 dark:text-green-400 font-medium">✅ Answer: b) time picker</p>
+                </div>
+
+                <div class="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                    <p class="font-medium mb-2"><span class="font-bold">34.</span> Where do you create and edit dashboards in Splunk Web?</p>
+                    <ul class="ml-6 list-[lower-alpha] space-y-1">
+                        <li>Settings → Reports</li>
+                        <li>Apps → Search & Reporting → Dashboards</li>
+                        <li>Settings → Alerts</li>
+                        <li>Apps → Settings</li>
+                    </ul>
+                    <p class="mt-2 text-green-600 dark:text-green-400 font-medium">✅ Answer: b) Apps → Search & Reporting → Dashboards</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Data Models & Pivots Section -->
+        <section class="mb-8">
+            <h2 class="text-2xl font-bold mb-4 bg-primary/10 p-2 rounded">🧠 4. Data Models & Pivots (15%) -- ~10 Questions</h2>
+            
+            <div class="space-y-6">
+                <div class="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                    <p class="font-medium mb-2"><span class="font-bold">35.</span> What is a data model in Splunk?</p>
+                    <ul class="ml-6 list-[lower-alpha] space-y-1">
+                        <li>A visualization template</li>
+                        <li>A predefined SPL search</li>
+                        <li>A hierarchical mapping of dataset fields</li>
+                        <li>A summary index</li>
+                    </ul>
+                    <p class="mt-2 text-green-600 dark:text-green-400 font-medium">✅ Answer: c) A hierarchical mapping of dataset fields</p>
+                </div>
+
+                <div class="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                    <p class="font-medium mb-2"><span class="font-bold">36.</span> Which UI tool helps non-technical users create reports from data models?</p>
+                    <ul class="ml-6 list-[lower-alpha] space-y-1">
+                        <li>Dashboard Editor</li>
+                        <li>Report Builder</li>
+                        <li>Pivot</li>
+                        <li>Search Assistant</li>
+                    </ul>
+                    <p class="mt-2 text-green-600 dark:text-green-400 font-medium">✅ Answer: c) Pivot</p>
+                </div>
+
+                <div class="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                    <p class="font-medium mb-2"><span class="font-bold">37.</span> What is required to use the Pivot interface?</p>
+                    <ul class="ml-6 list-[lower-alpha] space-y-1">
+                        <li>Lookup</li>
+                        <li>Event type</li>
+                        <li>Data model</li>
+                        <li>Saved search</li>
+                    </ul>
+                    <p class="mt-2 text-green-600 dark:text-green-400 font-medium">✅ Answer: c) Data model</p>
+                </div>
+
+                <div class="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                    <p class="font-medium mb-2"><span class="font-bold">38.</span> In a data model, what is a constraint?</p>
+                    <ul class="ml-6 list-[lower-alpha] space-y-1">
+                        <li>A limit on time range</li>
+                        <li>A permission rule</li>
+                        <li>A base search filter</li>
+                        <li>A field alias</li>
+                    </ul>
+                    <p class="mt-2 text-green-600 dark:text-green-400 font-medium">✅ Answer: c) A base search filter</p>
+                </div>
+
+                <div class="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                    <p class="font-medium mb-2"><span class="font-bold">39.</span> Which of the following is true about data models?</p>
+                    <ul class="ml-6 list-[lower-alpha] space-y-1">
+                        <li>They cannot be accelerated</li>
+                        <li>They are indexed data</li>
+                        <li>They must be built using raw SPL</li>
+                        <li>They can be accelerated for performance</li>
+                    </ul>
+                    <p class="mt-2 text-green-600 dark:text-green-400 font-medium">✅ Answer: d) They can be accelerated for performance</p>
+                </div>
+
+                <div class="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                    <p class="font-medium mb-2"><span class="font-bold">40.</span> What can be created from a Pivot table?</p>
+                    <ul class="ml-6 list-[lower-alpha] space-y-1">
+                        <li>Only dashboards</li>
+                        <li>Only saved searches</li>
+                        <li>Reports and visualizations</li>
+                        <li>Only macros</li>
+                    </ul>
+                    <p class="mt-2 text-green-600 dark:text-green-400 font-medium">✅ Answer: c) Reports and visualizations</p>
+                </div>
+
+                <div class="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                    <p class="font-medium mb-2"><span class="font-bold">41.</span> Which field type allows groupings in a Pivot table?</p>
+                    <ul class="ml-6 list-[lower-alpha] space-y-1">
+                        <li>Numeric</li>
+                        <li>Time</li>
+                        <li>Object</li>
+                        <li>Row Split</li>
+                    </ul>
+                    <p class="mt-2 text-green-600 dark:text-green-400 font-medium">✅ Answer: d) Row Split</p>
+                </div>
+
+                <div class="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                    <p class="font-medium mb-2"><span class="font-bold">42.</span> What does acceleration of a data model do?</p>
+                    <ul class="ml-6 list-[lower-alpha] space-y-1">
+                        <li>Compresses it</li>
+                        <li>Encrypts it</li>
+                        <li>Improves search performance</li>
+                        <li>Prevents user edits</li>
+                    </ul>
+                    <p class="mt-2 text-green-600 dark:text-green-400 font-medium">✅ Answer: c) Improves search performance</p>
+                </div>
+
+                <div class="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                    <p class="font-medium mb-2"><span class="font-bold">43.</span> Which roles can create data models?</p>
+                    <ul class="ml-6 list-[lower-alpha] space-y-1">
+                        <li>Only admin</li>
+                        <li>Any authenticated user</li>
+                        <li>Users with accelerate_datamodel capability</li>
+                        <li>Only power user</li>
+                    </ul>
+                    <p class="mt-2 text-green-600 dark:text-green-400 font-medium">✅ Answer: c) Users with accelerate_datamodel capability</p>
+                </div>
+
+                <div class="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                    <p class="font-medium mb-2"><span class="font-bold">44.</span> Which object do Pivot and data models help abstract for business users?</p>
+                    <ul class="ml-6 list-[lower-alpha] space-y-1">
+                        <li>Raw logs</li>
+                        <li>Complex dashboards</li>
+                        <li>SPL queries</li>
+                        <li>Index configuration</li>
+                    </ul>
+                    <p class="mt-2 text-green-600 dark:text-green-400 font-medium">✅ Answer: c) SPL queries</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Fields Section -->
+        <section class="mb-8">
+            <h2 class="text-2xl font-bold mb-4 bg-primary/10 p-2 rounded">📦 5. Fields (20%) -- ~13 Questions</h2>
+            
+            <div class="space-y-6">
+                <div class="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                    <p class="font-medium mb-2"><span class="font-bold">45.</span> Which command is used to extract fields using regular expressions?</p>
+                    <ul class="ml-6 list-[lower-alpha] space-y-1">
+                        <li>rex</li>
+                        <li>stats</li>
+                        <li>spath</li>
+                        <li>eval</li>
+                    </ul>
+                    <p class="mt-2 text-green-600 dark:text-green-400 font-medium">✅ Answer: a) rex</p>
+                </div>
+
+                <div class="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                    <p class="font-medium mb-2"><span class="font-bold">46.</span> What does spath do?</p>
+                    <ul class="ml-6 list-[lower-alpha] space-y-1">
+                        <li>Search field aliases</li>
+                        <li>Extract fields from JSON/XML</li>
+                        <li>Speed up dashboards</li>
+                        <li>Perform regex matching</li>
+                    </ul>
+                    <p class="mt-2 text-green-600 dark:text-green-400 font-medium">✅ Answer: b) Extract fields from JSON/XML</p>
+                </div>
+
+                <div class="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                    <p class="font-medium mb-2"><span class="font-bold">47.</span> How can you create a new field from existing fields?</p>
+                    <ul class="ml-6 list-[lower-alpha] space-y-1">
+                        <li>stats</li>
+                        <li>table</li>
+                        <li>eval</li>
+                        <li>eventtype</li>
+                    </ul>
+                    <p class="mt-2 text-green-600 dark:text-green-400 font-medium">✅ Answer: c) eval</p>
+                </div>
+
+                <div class="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                    <p class="font-medium mb-2"><span class="font-bold">48.</span> Which fields are always present in every event?</p>
+                    <ul class="ml-6 list-[lower-alpha] space-y-1">
+                        <li>host, source, sourcetype</li>
+                        <li>ip, time, bytes</li>
+                        <li>loglevel, status, event_id</li>
+                        <li>raw, regex, kv</li>
+                    </ul>
+                    <p class="mt-2 text-green-600 dark:text-green-400 font-medium">✅ Answer: a) host, source, sourcetype</p>
+                </div>
+
+                <div class="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                    <p class="font-medium mb-2"><span class="font-bold">49.</span> What command can list all extracted fields in events?</p>
+                    <ul class="ml-6 list-[lower-alpha] space-y-1">
+                        <li>list</li>
+                        <li>fields</li>
+                        <li>table</li>
+                        <li>fieldsummary</li>
+                    </ul>
+                    <p class="mt-2 text-green-600 dark:text-green-400 font-medium">✅ Answer: d) fieldsummary</p>
+                </div>
+
+                <div class="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                    <p class="font-medium mb-2"><span class="font-bold">50.</span> Which field stores the original event text?</p>
+                    <ul class="ml-6 list-[lower-alpha] space-y-1">
+                        <li>_text</li>
+                        <li>_raw</li>
+                        <li>_time</li>
+                        <li>sourcetype</li>
+                    </ul>
+                    <p class="mt-2 text-green-600 dark:text-green-400 font-medium">✅ Answer: b) _raw</p>
+                </div>
+
+                <div class="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                    <p class="font-medium mb-2"><span class="font-bold">51.</span> What field represents the event timestamp?</p>
+                    <ul class="ml-6 list-[lower-alpha] space-y-1">
+                        <li>_date</li>
+                        <li>_raw</li>
+                        <li>_time</li>
+                        <li>time_created</li>
+                    </ul>
+                    <p class="mt-2 text-green-600 dark:text-green-400 font-medium">✅ Answer: c) _time</p>
+                </div>
+
+                <div class="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                    <p class="font-medium mb-2"><span class="font-bold">52.</span> What is the result of fields + status in SPL?</p>
+                    <ul class="ml-6 list-[lower-alpha] space-y-1">
+                        <li>All fields are removed</li>
+                        <li>Adds the status field to display</li>
+                        <li>Hides status</li>
+                        <li>Renames all fields</li>
+                    </ul>
+                    <p class="mt-2 text-green-600 dark:text-green-400 font-medium">✅ Answer: b) Adds the status field to display</p>
+                </div>
+
+                <div class="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                    <p class="font-medium mb-2"><span class="font-bold">53.</span> What is the purpose of the fieldalias.conf file?</p>
+                    <ul class="ml-6 list-[lower-alpha] space-y-1">
+                        <li>To create saved searches</li>
+                        <li>To define sourcetype fields</li>
+                        <li>To map field aliases</li>
+                        <li>To extract timestamps</li>
+                    </ul>
+                    <p class="mt-2 text-green-600 dark:text-green-400 font-medium">✅ Answer: c) To map field aliases</p>
+                </div>
+
+                <div class="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                    <p class="font-medium mb-2"><span class="font-bold">54.</span> To extract values from nested JSON fields, you should use:</p>
+                    <ul class="ml-6 list-[lower-alpha] space-y-1">
+                        <li>rex</li>
+                        <li>spath</li>
+                        <li>eval</li>
+                        <li>mvexpand</li>
+                    </ul>
+                    <p class="mt-2 text-green-600 dark:text-green-400 font-medium">✅ Answer: b) spath</p>
+                </div>
+
+                <div class="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                    <p class="font-medium mb-2"><span class="font-bold">55.</span> Which field is used to identify the data source (e.g., logfile path)?</p>
+                    <ul class="ml-6 list-[lower-alpha] space-y-1">
+                        <li>host</li>
+                        <li>sourcetype</li>
+                        <li>source</li>
+                        <li>_raw</li>
+                    </ul>
+                    <p class="mt-2 text-green-600 dark:text-green-400 font-medium">✅ Answer: c) source</p>
+                </div>
+
+                <div class="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                    <p class="font-medium mb-2"><span class="font-bold">56.</span> Which command filters results based on a condition?</p>
+                    <ul class="ml-6 list-[lower-alpha] space-y-1">
+                        <li>where</li>
+                        <li>dedup</li>
+                        <li>stats</li>
+                        <li>lookup</li>
+                    </ul>
+                    <p class="mt-2 text-green-600 dark:text-green-400 font-medium">✅ Answer: a) where</p>
+                </div>
+
+                <div class="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                    <p class="font-medium mb-2"><span class="font-bold">57.</span> To format a timestamp in a specific way, which function is used?</p>
+                    <ul class="ml-6 list-[lower-alpha] space-y-1">
+                        <li>timechart</li>
+                        <li>strftime</li>
+                        <li>datefmt</li>
+                        <li>fieldformat</li>
+                    </ul>
+                    <p class="mt-2 text-green-600 dark:text-green-400 font-medium">✅ Answer: b) strftime</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Search Optimization & Reporting Section -->
+        <section class="mb-8">
+            <h2 class="text-2xl font-bold mb-4 bg-primary/10 p-2 rounded">⚙️ 6. Search Optimization & Reporting (13%) -- ~8 Questions</h2>
+            
+            <div class="space-y-6">
+                <div class="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                    <p class="font-medium mb-2"><span class="font-bold">58.</span> What command optimizes searches on accelerated data models?</p>
+                    <ul class="ml-6 list-[lower-alpha] space-y-1">
+                        <li>datamodel</li>
+                        <li>pivot</li>
+                        <li>tstats</li>
+                        <li>stats</li>
+                    </ul>
+                    <p class="mt-2 text-green-600 dark:text-green-400 font-medium">✅ Answer: c) tstats</p>
+                </div>
+
+                <div class="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                    <p class="font-medium mb-2"><span class="font-bold">59.</span> What is a summary index used for?</p>
+                    <ul class="ml-6 list-[lower-alpha] space-y-1">
+                        <li>Backup logs</li>
+                        <li>Save dashboards</li>
+                        <li>Store pre-aggregated data</li>
+                        <li>Run real-time alerts</li>
+                    </ul>
+                    <p class="mt-2 text-green-600 dark:text-green-400 font-medium">✅ Answer: c) Store pre-aggregated data</p>
+                </div>
+
+                <div class="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                    <p class="font-medium mb-2"><span class="font-bold">60.</span> What is the advantage of using tstats over stats?</p>
+                    <ul class="ml-6 list-[lower-alpha] space-y-1">
+                        <li>It shows raw logs</li>
+                        <li>It can use accelerated data</li>
+                        <li>It uses macros</li>
+                        <li>It's more readable</li>
+                    </ul>
+                    <p class="mt-2 text-green-600 dark:text-green-400 font-medium">✅ Answer: b) It can use accelerated data</p>
+                </div>
+
+                <div class="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                    <p class="font-medium mb-2"><span class="font-bold">61.</span> Which option improves dashboard performance?</p>
+                    <ul class="ml-6 list-[lower-alpha] space-y-1">
+                        <li>Run searches in real-time</li>
+                        <li>Use fewer panels</li>
+                        <li>Use post-process searches</li>
+                        <li>Use fieldsummary</li>
+                    </ul>
+                    <p class="mt-2 text-green-600 dark:text-green-400 font-medium">✅ Answer: c) Use post-process searches</p>
+                </div>
+
+                <div class="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                    <p class="font-medium mb-2"><span class="font-bold">62.</span> Which search mode gives the fastest results?</p>
+                    <ul class="ml-6 list-[lower-alpha] space-y-1">
+                        <li>Verbose</li>
+                        <li>Smart</li>
+                        <li>Fast</li>
+                        <li>Expanded</li>
+                    </ul>
+                    <p class="mt-2 text-green-600 dark:text-green-400 font-medium">✅ Answer: c) Fast</p>
+                </div>
+
+                <div class="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                    <p class="font-medium mb-2"><span class="font-bold">63.</span> How do scheduled reports help optimize performance?</p>
+                    <ul class="ml-6 list-[lower-alpha] space-y-1">
+                        <li>Compress raw data</li>
+                        <li>Index new logs</li>
+                        <li>Run searches once and cache results</li>
+                        <li>Enable backups</li>
+                    </ul>
+                    <p class="mt-2 text-green-600 dark:text-green-400 font-medium">✅ Answer: c) Run searches once and cache results</p>
+                </div>
+
+                <div class="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                    <p class="font-medium mb-2"><span class="font-bold">64.</span> How can you reduce the time spent searching on large indexes?</p>
+                    <ul class="ml-6 list-[lower-alpha] space-y-1">
+                        <li>Use head</li>
+                        <li>Apply index and sourcetype filters early</li>
+                        <li>Use rex</li>
+                        <li>Use table</li>
+                    </ul>
+                    <p class="mt-2 text-green-600 dark:text-green-400 font-medium">✅ Answer: b) Apply index and sourcetype filters early</p>
+                </div>
+
+                <div class="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                    <p class="font-medium mb-2"><span class="font-bold">65.</span> Which tool helps identify performance bottlenecks in a search?</p>
+                    <ul class="ml-6 list-[lower-alpha] space-y-1">
+                        <li>Search Assistant</li>
+                        <li>Monitoring Console</li>
+                        <li>Job Inspector</li>
+                        <li>Dashboard Studio</li>
+                    </ul>
+                    <p class="mt-2 text-green-600 dark:text-green-400 font-medium">✅ Answer: c) Job Inspector</p>
+                </div>
+            </div>
+        </section>
+
+        <footer class="text-center mt-8 text-sm text-gray-600 dark:text-gray-400">
+            <p>Study guide for Splunk Power User certification - 65 practice questions with answers</p>
+        </footer>
+    </div>
+
+    <script>
+        // Add functionality for search or filtering if needed in the future
+    </script>
+</body>
+</html>

@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Splunk Troubleshooting Quiz</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#5D5CDE',
+                    }
+                }
+            },
+            darkMode: 'class',
+        }
+    </script>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-200 min-h-screen transition-colors duration-300">
+    <div class="container mx-auto px-4 py-8 max-w-4xl">
+        <header class="mb-8 text-center">
+            <h1 class="text-3xl font-bold text-primary dark:text-primary mb-2">Splunk Troubleshooting Quiz</h1>
+            <p class="text-lg text-gray-600 dark:text-gray-400 mb-4">Test your knowledge of Splunk troubleshooting concepts</p>
+            <div class="flex justify-center gap-4">
+                <button id="show-all-answers" class="bg-primary hover:bg-primary/80 text-white font-semibold py-2 px-4 rounded-lg transition">
+                    Show All Answers
+                </button>
+                <button id="hide-all-answers" class="bg-gray-300 dark:bg-gray-700 hover:bg-gray-400 dark:hover:bg-gray-600 text-gray-800 dark:text-white font-semibold py-2 px-4 rounded-lg transition">
+                    Hide All Answers
+                </button>
+                <button id="reset-quiz" class="bg-gray-300 dark:bg-gray-700 hover:bg-gray-400 dark:hover:bg-gray-600 text-gray-800 dark:text-white font-semibold py-2 px-4 rounded-lg transition">
+                    Reset Quiz
+                </button>
+            </div>
+            <div class="mt-4">
+                <span id="score" class="text-lg font-semibold">Score: 0/0</span>
+            </div>
+        </header>
+
+        <main id="quiz-container" class="space-y-8">
+            <!-- Questions will be inserted here by JavaScript -->
+        </main>
+    </div>
+
+    <script>
+        // Detect dark mode preference
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.documentElement.classList.add('dark');
+        }
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
+            if (event.matches) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        });
+
+        // Quiz data
+        const quizData = [
+            {
+                question: "How can you improve search performance for users?",
+                answer: "By using base searches, search macros, summary indexing, event sampling, and indexing best practices, use CIM/datamodels and enabling data model acceleration for pivot-based and dashboard searches"
+            },
+            {
+                question: "How can duplicate indexing be detected?",
+                answer: "By checking splunkd logs for WatchedFile component and comparing _time, _raw, _indextime values.\n- Compare _time (event's original timestamp) AND _raw (event content) to find events with the same content and timestamp.\n- Then, check if those events have different _indextime values -- this confirms the same event was indexed multiple times.\n- _time = The event's timestamp extracted during parsing/extraction (before indexing).\n- _indextime = The timestamp recorded at the actual indexing stage when the event is written into Splunk's index."
+            },
+            {
+                question: "What component helps distribute search loads across peers?",
+                answer: "The Search Head and Search Peer topology."
+            },
+            {
+                question: "What are signs that apps are not deploying properly to clients?",
+                answer: "Clients may not contact the correct DS, or whitelist/blacklist settings might be incorrect and No recent phoneHome activity in deployment.log or splunkd.log"
+            },
+            {
+                question: "How can you detect skipped or delayed searches?",
+                answer: "By checking scheduler.log and looking for 'skipped' entries. or By reviewing the scheduler.log and Monitoring Console, and checking for messages like \"skipped\" or \"execution delayed\" related to scheduled searches\n- What You Can Do to Fix or Prevent: Increase search concurrency limits in limits.conf\n```ini\n[scheduler]\nmax_searches_per_cpu = 2\nmax_hist_searches = 6\n```\nCommand: grep -i skipped\|execution delayed $SPLUNK_HOME/var/log/splunk/scheduler.log"
+            },
+            {
+                question: "What does a 'blocked=true' status in a queue indicate?",
+                answer: "That the queue is full and processing is delayed or halted.\n- `QueueMonitor - queue=indexQueue, size=5000, maxSize=5000, blocked=true`\n- `index=_internal source=*metrics.log* blocked=true`\n- Increase queue sizes \n```ini\n[queue]\nmaxSize = 10000\n```\n- Reduce ingestion rate if your system is under-provisioned.\n- Check disk I/O -- a slow disk can block the indexQueue."
+            },
+            {
+                question: "What is the fishbucket and its role?",
+                answer: "It internal index that stores CRC and seek pointers to prevent re-indexing files.\n`index=_thefishbucket | table host, source, sourcetype, _cd`"
+            },
+            {
+                question: "Which component determines the event boundary and performs timestamp extraction?",
+                answer: "✅The Parsing Queue (Parser)❌The aggregator processor in the merging pipeline."
+            },
+            {
+                question: "Which Splunk log file contains internal events for each processor?",
+                answer: "splunkd.log located in the _internal index."
+            },
+            {
+                question: "What command shows the input status of monitored files?",
+                answer: "`splunk list inputstatus` or the REST endpoint `/services/admin/inputstatus/TailingProcessor:FileStatus`."
+            },
+            {
+                question: "Which log file contains the search execution details?",
+                answer: "search.log, stored in SPLUNK_HOME/var/run/splunk/dispatch/<sid>/"
+            },
+            {
+                question: "Where do you find errors related to search artifacts or permissions?",
+                answer: "In the splunkd.log or audit.log."
+            },
+            {
+                question: "What are symptoms of poor search performance?",
+                answer: "Long dispatch times, low completion percentages, or skipped searches."
+            },
+            {
+                question: "What is TSIDX in Splunk?",
+                answer: "TSIDX stands for Time Series Index -- it's a core internal file format used by Splunk to accelerate search performance"
+            },
+            {
+                question: "What is a TSIDX file?",
+                answer: "A TSIDX file is an index file that maps i. Terms (keywords) → to their location in time and in raw data ii. Timestamps → to event metadata."
+            },
+            {
+                question: "Why does TSIDX matter?",
+                answer: "It enables fast keyword searches over massive datasets. and Splunk doesn't search the raw logs directly; it uses TSIDX files to find matching events quickly"
+            },
+            {
+                question: "Where are TSIDX files located?",
+                answer: "$SPLUNK_DB/<index_name>/db_<bucket_id>/tsidx"
+            },
+            {
+                question: "What is a Summary Index in Splunk?",
+                answer: "A summary index in Splunk is a custom index used to store preprocessed, summarized search results -- not raw data."
+            },
+            {
+                question: "What is the purpose of Summary Indexing?",
+                answer: "Improve search performance on large datasets, Reduce search load on indexers, Enable faster dashboards, reports, and alert investigations"
+            },
+            {
+                question: "What is WatchedFile in Splunk?",
+                answer: "WatchedFile refers to the component/process in Splunk that monitors files on disk for new data to index"
+            },
+            {
+                question: "How does WatchedFile work?",
+                answer: "- Splunk uses monitor inputs (configured via inputs.conf) to watch files or directories.\n- The WatchedFile process watches these files for any new data appended (like logs being written).\n- When new data appears, it reads and sends it to the indexer for processing.\n- It tracks file positions to avoid re-reading old data unless the file changes (like truncation or rotation)"
+            }
+        ];
+
+        // Quiz state
+        let score = 0;
+        let answered = 0;
+        let totalQuestions = quizData.length;
+
+        // DOM Elements
+        const quizContainer = document.getElementById('quiz-container');
+        const scoreElement = document.getElementById('score');
+        const showAllAnswersBtn = document.getElementById('show-all-answers');
+        const hideAllAnswersBtn = document.getElementById('hide-all-answers');
+        const resetQuizBtn = document.getElementById('reset-quiz');
+
+        // Create quiz questions
+        function createQuiz() {
+            quizContainer.innerHTML = '';
+            
+            quizData.forEach((data, index) => {
+                const questionNumber = index + 1;
+                const questionCard = document.createElement('div');
+                questionCard.classList.add('bg-white', 'dark:bg-gray-800', 'rounded-lg', 'shadow-md', 'p-6', 'question-card');
+                questionCard.dataset.index = index;
+                
+                // Format the answer with proper line breaks for markdown-like content
+                const formattedAnswer = data.answer.replace(/\n/g, '<br>');
+                
+                // Create question HTML
+                questionCard.innerHTML = `
+                    <div class="flex items-start">
+                        <div class="text-xl font-bold mr-3 text-primary">${questionNumber}.</div>
+                        <div class="flex-1">
+                            <div class="text-lg font-semibold mb-4">${data.question}</div>
+                            <div class="mb-4">
+                                <button class="show-answer bg-primary hover:bg-primary/80 text-white font-medium py-2 px-4 rounded transition">
+                                    Show Answer
+                                </button>
+                            </div>
+                            <div class="answer-container hidden">
+                                <div class="p-4 rounded-lg answer-box">
+                                    <div class="answer-text">${formattedAnswer}</div>
+                                </div>
+                                <div class="mt-4 flex gap-3">
+                                    <button class="correct-btn bg-green-500 hover:bg-green-600 text-white font-medium py-1 px-3 rounded transition">
+                                        I Got It Right
+                                    </button>
+                                    <button class="incorrect-btn bg-red-500 hover:bg-red-600 text-white font-medium py-1 px-3 rounded transition">
+                                        I Got It Wrong
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                quizContainer.appendChild(questionCard);
+                
+                // Add event listeners
+                const showAnswerBtn = questionCard.querySelector('.show-answer');
+                const answerContainer = questionCard.querySelector('.answer-container');
+                const answerBox = questionCard.querySelector('.answer-box');
+                const correctBtn = questionCard.querySelector('.correct-btn');
+                const incorrectBtn = questionCard.querySelector('.incorrect-btn');
+                
+                showAnswerBtn.addEventListener('click', () => {
+                    showAnswerBtn.classList.add('hidden');
+                    answerContainer.classList.remove('hidden');
+                });
+                
+                correctBtn.addEventListener('click', () => {
+                    answerBox.classList.add('bg-green-100', 'dark:bg-green-900/30', 'border', 'border-green-500');
+                    answerBox.classList.remove('bg-red-100', 'dark:bg-red-900/30', 'border-red-500');
+                    
+                    if (!questionCard.dataset.answered) {
+                        score++;
+                        answered++;
+                        questionCard.dataset.answered = 'correct';
+                        updateScore();
+                    } else if (questionCard.dataset.answered === 'incorrect') {
+                        score++;
+                        questionCard.dataset.answered = 'correct';
+                        updateScore();
+                    }
+                    
+                    correctBtn.disabled = true;
+                    incorrectBtn.disabled = true;
+                    correctBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                    incorrectBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                });
+                
+                incorrectBtn.addEventListener('click', () => {
+                    answerBox.classList.add('bg-red-100', 'dark:bg-red-900/30', 'border', 'border-red-500');
+                    answerBox.classList.remove('bg-green-100', 'dark:bg-green-900/30', 'border-green-500');
+                    
+                    if (!questionCard.dataset.answered) {
+                        answered++;
+                        questionCard.dataset.answered = 'incorrect';
+                        updateScore();
+                    } else if (questionCard.dataset.answered === 'correct') {
+                        score--;
+                        questionCard.dataset.answered = 'incorrect';
+                        updateScore();
+                    }
+                    
+                    correctBtn.disabled = true;
+                    incorrectBtn.disabled = true;
+                    correctBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                    incorrectBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                });
+            });
+        }
+
+        // Update score display
+        function updateScore() {
+            scoreElement.textContent = `Score: ${score}/${answered} (${Math.round((score/totalQuestions) * 100)}% complete)`;
+        }
+
+        // Show all answers
+        function showAllAnswers() {
+            document.querySelectorAll('.question-card').forEach(card => {
+                const showAnswerBtn = card.querySelector('.show-answer');
+                const answerContainer = card.querySelector('.answer-container');
+                
+                showAnswerBtn.classList.add('hidden');
+                answerContainer.classList.remove('hidden');
+            });
+        }
+
+        // Hide all answers
+        function hideAllAnswers() {
+            document.querySelectorAll('.question-card').forEach(card => {
+                if (!card.dataset.answered) {
+                    const showAnswerBtn = card.querySelector('.show-answer');
+                    const answerContainer = card.querySelector('.answer-container');
+                    
+                    showAnswerBtn.classList.remove('hidden');
+                    answerContainer.classList.add('hidden');
+                }
+            });
+        }
+
+        // Reset quiz
+        function resetQuiz() {
+            score = 0;
+            answered = 0;
+            updateScore();
+            createQuiz();
+        }
+
+        // Event listeners for global buttons
+        showAllAnswersBtn.addEventListener('click', showAllAnswers);
+        hideAllAnswersBtn.addEventListener('click', hideAllAnswers);
+        resetQuizBtn.addEventListener('click', resetQuiz);
+
+        // Initialize quiz
+        createQuiz();
+        updateScore();
+
+        // Handle code blocks for better display
+        document.querySelectorAll('.answer-text').forEach(element => {
+            const content = element.innerHTML;
+            const formattedContent = content.replace(/```([a-z]*)\n([\s\S]*?)```/g, (match, language, code) => {
+                return `<pre class="bg-gray-100 dark:bg-gray-900 p-3 rounded-md my-2 overflow-x-auto"><code class="${language}">${code}</code></pre>`;
+            });
+            element.innerHTML = formattedContent;
+        });
+    </script>
+</body>
+</html>

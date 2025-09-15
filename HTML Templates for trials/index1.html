@@ -1,0 +1,1053 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Splunk Core Certified User Exam Practice</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#5D5CDE',
+                    },
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-50 text-gray-900 dark:bg-gray-900 dark:text-gray-100 min-h-screen">
+    <div class="container mx-auto px-4 py-8 max-w-3xl">
+        <header class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-primary mb-2">Splunk Core Certified User Exam</h1>
+            <p class="text-lg dark:text-gray-300">Practice Quiz - 60 Questions</p>
+        </header>
+
+        <main>
+            <!-- Quiz container -->
+            <div id="quiz-container" class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-6">
+                <!-- Progress bar -->
+                <div class="mb-4">
+                    <div class="flex justify-between text-sm mb-1">
+                        <span id="question-counter">Question 1 of 60</span>
+                        <span id="score-display">Score: 0/0</span>
+                    </div>
+                    <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5">
+                        <div id="progress-bar" class="bg-primary h-2.5 rounded-full" style="width: 1.67%"></div>
+                    </div>
+                </div>
+
+                <!-- Category tag -->
+                <div id="category-tag" class="inline-block bg-primary bg-opacity-10 text-primary px-3 py-1 rounded-full text-sm font-medium mb-4">
+                    Splunk Basics
+                </div>
+
+                <!-- Question -->
+                <div id="question-container" class="mb-6">
+                    <h2 id="question-text" class="text-xl font-semibold mb-1">What is the primary role of the Indexer in Splunk?</h2>
+                    <p id="question-number" class="text-sm text-gray-500 dark:text-gray-400">Q1</p>
+                </div>
+
+                <!-- Answer options -->
+                <div id="answer-options" class="space-y-3 mb-6">
+                    <!-- Answer options will be inserted here dynamically -->
+                </div>
+
+                <!-- Feedback area (hidden by default) -->
+                <div id="feedback-container" class="hidden mb-6 p-4 rounded-lg">
+                    <p id="feedback-text" class="font-medium"></p>
+                    <p id="correct-answer" class="mt-2"></p>
+                </div>
+
+                <!-- Navigation buttons -->
+                <div class="flex justify-between mt-8">
+                    <button id="prev-btn" class="px-4 py-2 rounded-lg bg-gray-200 text-gray-700 font-medium hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600 transition disabled:opacity-50 disabled:cursor-not-allowed" disabled>Previous</button>
+                    <button id="submit-btn" class="px-4 py-2 rounded-lg bg-primary text-white font-medium hover:bg-opacity-90 transition">Submit Answer</button>
+                    <button id="next-btn" class="px-4 py-2 rounded-lg bg-gray-200 text-gray-700 font-medium hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600 transition">Next</button>
+                </div>
+            </div>
+
+            <!-- Results container (hidden by default) -->
+            <div id="results-container" class="hidden bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 text-center">
+                <h2 class="text-2xl font-bold mb-4">Quiz Completed!</h2>
+                <p class="text-lg mb-2">Your final score:</p>
+                <p id="final-score" class="text-3xl font-bold text-primary mb-6">0/60</p>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                    <div class="bg-gray-100 dark:bg-gray-700 p-4 rounded-lg">
+                        <p class="text-lg font-medium mb-1">Correct Answers</p>
+                        <p id="correct-count" class="text-2xl font-bold text-green-600 dark:text-green-400">0</p>
+                    </div>
+                    <div class="bg-gray-100 dark:bg-gray-700 p-4 rounded-lg">
+                        <p class="text-lg font-medium mb-1">Incorrect Answers</p>
+                        <p id="incorrect-count" class="text-2xl font-bold text-red-600 dark:text-red-400">0</p>
+                    </div>
+                </div>
+                
+                <button id="restart-btn" class="px-6 py-3 rounded-lg bg-primary text-white font-medium hover:bg-opacity-90 transition">Restart Quiz</button>
+            </div>
+        </main>
+
+        <footer class="text-center text-sm text-gray-500 dark:text-gray-400 mt-8">
+            <p>This quiz is for practice purposes only and is not affiliated with Splunk Inc.</p>
+        </footer>
+    </div>
+
+    <script>
+        // Dark mode detection and toggle
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.documentElement.classList.add('dark');
+        }
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
+            if (event.matches) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        });
+
+        // Quiz data
+        const quizData = [
+            {
+                category: "Splunk Basics",
+                question: "What is the primary role of the Indexer in Splunk?",
+                number: "Q1",
+                options: [
+                    "Collects data from forwarders",
+                    "Parses and indexes data",
+                    "Manages user authentication",
+                    "Schedules reports"
+                ],
+                answer: "Parses and indexes data"
+            },
+            {
+                category: "Splunk Basics",
+                question: "Which component allows users to search and visualize data in Splunk?",
+                number: "Q2",
+                options: [
+                    "Forwarder",
+                    "Indexer",
+                    "Search Head",
+                    "Deployment Server"
+                ],
+                answer: "Search Head"
+            },
+            {
+                category: "Basic Searching",
+                question: "Which search returns events where the status field is error?",
+                number: "Q3",
+                options: [
+                    "status=error",
+                    "search status:error",
+                    "status:error",
+                    "find status=error"
+                ],
+                answer: "status=error"
+            },
+            {
+                category: "Basic Searching",
+                question: "How can you limit a search to the last 24 hours?",
+                number: "Q4",
+                options: [
+                    "earliest=-24h",
+                    "latest=now",
+                    "earliest=-24h latest=now",
+                    "All of the above"
+                ],
+                answer: "All of the above"
+            },
+            {
+                category: "Using Fields in Searches",
+                question: "What does the fields command do?",
+                number: "Q5",
+                options: [
+                    "Filters events based on field values",
+                    "Specifies which fields to include in the results",
+                    "Renames fields in the results",
+                    "Removes duplicate fields"
+                ],
+                answer: "Specifies which fields to include in the results"
+            },
+            {
+                category: "Using Fields in Searches",
+                question: "How can you view all extracted fields in an event?",
+                number: "Q6",
+                options: [
+                    "Use the fieldsummary command",
+                    "Click on the event and expand the field list",
+                    "Use the table command",
+                    "Fields are not viewable"
+                ],
+                answer: "Click on the event and expand the field list"
+            },
+            {
+                category: "Search Language Basics",
+                question: "What is the purpose of the eval command?",
+                number: "Q7",
+                options: [
+                    "Evaluate mathematical expressions",
+                    "Create new fields",
+                    "Modify existing fields",
+                    "All of the above"
+                ],
+                answer: "All of the above"
+            },
+            {
+                category: "Search Language Basics",
+                question: "Which command removes duplicate events based on specified fields?",
+                number: "Q8",
+                options: [
+                    "unique",
+                    "dedup",
+                    "distinct",
+                    "nodup"
+                ],
+                answer: "dedup"
+            },
+            {
+                category: "Using Basic Transforming Commands",
+                question: "What does the stats command do?",
+                number: "Q9",
+                options: [
+                    "Calculates statistics like count, sum, average",
+                    "Sorts events",
+                    "Filters events",
+                    "Displays raw events"
+                ],
+                answer: "Calculates statistics like count, sum, average"
+            },
+            {
+                category: "Using Basic Transforming Commands",
+                question: "Which command creates a time-based chart?",
+                number: "Q10",
+                options: [
+                    "chart",
+                    "timechart",
+                    "stats",
+                    "table"
+                ],
+                answer: "timechart"
+            },
+            {
+                category: "Creating Reports and Dashboards",
+                question: "How can you save a search as a report?",
+                number: "Q11",
+                options: [
+                    "Click \"Save As\" > \"Report\"",
+                    "Use the save command",
+                    "Reports cannot be created from searches",
+                    "Use the report command"
+                ],
+                answer: "Click \"Save As\" > \"Report\""
+            },
+            {
+                category: "Creating Reports and Dashboards",
+                question: "What is a dashboard in Splunk?",
+                number: "Q12",
+                options: [
+                    "A collection of reports",
+                    "A visual representation of data using panels",
+                    "A list of saved searches",
+                    "A type of alert"
+                ],
+                answer: "A visual representation of data using panels"
+            },
+            {
+                category: "Creating and Using Lookups",
+                question: "What is the purpose of a lookup in Splunk?",
+                number: "Q13",
+                options: [
+                    "To delete events",
+                    "To enrich event data with external information",
+                    "To create dashboards",
+                    "To schedule reports"
+                ],
+                answer: "To enrich event data with external information"
+            },
+            {
+                category: "Creating and Using Lookups",
+                question: "Which command is used to apply a lookup to search results?",
+                number: "Q14",
+                options: [
+                    "applylookup",
+                    "lookup",
+                    "enrich",
+                    "addlookup"
+                ],
+                answer: "lookup"
+            },
+            {
+                category: "Creating Scheduled Reports and Alerts",
+                question: "How can you schedule a report in Splunk?",
+                number: "Q15",
+                options: [
+                    "Use the schedule command",
+                    "Click \"Save As\" > \"Report\" > \"Schedule\"",
+                    "Reports cannot be scheduled",
+                    "Use the cron command"
+                ],
+                answer: "Click \"Save As\" > \"Report\" > \"Schedule\""
+            },
+            {
+                category: "Creating Scheduled Reports and Alerts",
+                question: "What is an alert in Splunk?",
+                number: "Q16",
+                options: [
+                    "A saved search that triggers an action when conditions are met",
+                    "A type of dashboard",
+                    "A user notification",
+                    "A report"
+                ],
+                answer: "A saved search that triggers an action when conditions are met"
+            },
+            {
+                category: "Managing Knowledge Objects",
+                question: "What is a knowledge object in Splunk?",
+                number: "Q17",
+                options: [
+                    "A saved search",
+                    "A field extraction or transformation rule",
+                    "A saved report",
+                    "All of the above"
+                ],
+                answer: "All of the above"
+            },
+            {
+                category: "Managing Knowledge Objects",
+                question: "Which command creates a table of specified fields?",
+                number: "Q18",
+                options: [
+                    "table",
+                    "fields",
+                    "lookup",
+                    "eval"
+                ],
+                answer: "table"
+            },
+            {
+                category: "Splunk User Interface and Data Interaction",
+                question: "In which panel can you set the time range for a search?",
+                number: "Q19",
+                options: [
+                    "Search bar",
+                    "Event viewer",
+                    "Time picker",
+                    "Results table"
+                ],
+                answer: "Time picker"
+            },
+            {
+                category: "Splunk User Interface and Data Interaction",
+                question: "What happens when you click the \"Open in Search\" button for a dashboard panel?",
+                number: "Q20",
+                options: [
+                    "Opens a new search in the Search & Reporting app",
+                    "Saves the panel as a new report",
+                    "Opens a field analysis for that panel",
+                    "Starts an alert for that panel"
+                ],
+                answer: "Opens a new search in the Search & Reporting app"
+            },
+            {
+                category: "Search Optimization",
+                question: "How can you speed up searches in Splunk?",
+                number: "Q21",
+                options: [
+                    "Use the index field",
+                    "Limit search results using the head command",
+                    "Use summary indexing",
+                    "All of the above"
+                ],
+                answer: "All of the above"
+            },
+            {
+                category: "Search Optimization",
+                question: "What is the purpose of summary indexing?",
+                number: "Q22",
+                options: [
+                    "To create reports from indexed data",
+                    "To reduce the data stored in Splunk",
+                    "To store pre-aggregated data for faster searches",
+                    "To monitor system health"
+                ],
+                answer: "To store pre-aggregated data for faster searches"
+            },
+            {
+                category: "Data Inputs and Forwarding",
+                question: "What type of data does Splunk index?",
+                number: "Q23",
+                options: [
+                    "Text-based log data",
+                    "JSON data",
+                    "Binary data",
+                    "All of the above"
+                ],
+                answer: "All of the above"
+            },
+            {
+                category: "Data Inputs and Forwarding",
+                question: "Which component is responsible for forwarding data to the Indexer?",
+                number: "Q24",
+                options: [
+                    "Forwarder",
+                    "Indexer",
+                    "Search Head",
+                    "Deployment Server"
+                ],
+                answer: "Forwarder"
+            },
+            {
+                category: "Security and Permissions",
+                question: "How can a user access a report that has been shared with them?",
+                number: "Q25",
+                options: [
+                    "They need to be an admin",
+                    "By using the share command",
+                    "From the Shared folder in the report section",
+                    "By searching for it in the search bar"
+                ],
+                answer: "From the Shared folder in the report section"
+            },
+            {
+                category: "Security and Permissions",
+                question: "Which role in Splunk has the permission to create apps?",
+                number: "Q26",
+                options: [
+                    "Admin",
+                    "Power User",
+                    "User",
+                    "Developer"
+                ],
+                answer: "Admin"
+            },
+            {
+                category: "Splunk Administration",
+                question: "What is the primary function of the Deployment Server in Splunk?",
+                number: "Q27",
+                options: [
+                    "Distribute configuration files to Splunk instances",
+                    "Store indexed data",
+                    "Forward data to remote indexers",
+                    "Collect logs from remote systems"
+                ],
+                answer: "Distribute configuration files to Splunk instances"
+            },
+            {
+                category: "Splunk Administration",
+                question: "What command is used to restart Splunk?",
+                number: "Q28",
+                options: [
+                    "splunk restart",
+                    "restart splunk",
+                    "splunk stop and splunk start",
+                    "systemctl restart splunk"
+                ],
+                answer: "splunk stop and splunk start"
+            },
+            {
+                category: "Splunk Search Language",
+                question: "Which of the following is the correct syntax for using the where command?",
+                number: "Q29",
+                options: [
+                    "where field=value",
+                    "where(value=field)",
+                    "where field==value",
+                    "where field=value and"
+                ],
+                answer: "where field=value"
+            },
+            {
+                category: "Splunk Search Language",
+                question: "How can you retrieve the most recent 5 events?",
+                number: "Q30",
+                options: [
+                    "head 5",
+                    "tail 5",
+                    "top 5",
+                    "latest 5"
+                ],
+                answer: "head 5"
+            },
+            {
+                category: "Data Models and CIM",
+                question: "What is a data model in Splunk?",
+                number: "Q31",
+                options: [
+                    "A collection of indexed data",
+                    "A set of predefined fields for structured data",
+                    "A summary of raw events",
+                    "A representation of relationships between events"
+                ],
+                answer: "A representation of relationships between events"
+            },
+            {
+                category: "Data Models and CIM",
+                question: "What does CIM stand for in Splunk?",
+                number: "Q32",
+                options: [
+                    "Common Information Model",
+                    "Common Instance Model",
+                    "Centralized Information Module",
+                    "Collaborative Index Management"
+                ],
+                answer: "Common Information Model"
+            },
+            {
+                category: "Splunk Apps and Add-ons",
+                question: "What is the main purpose of an app in Splunk?",
+                number: "Q33",
+                options: [
+                    "To extend the functionality of Splunk with new features",
+                    "To display custom dashboards only",
+                    "To manage Splunk configurations",
+                    "To forward data to a different server"
+                ],
+                answer: "To extend the functionality of Splunk with new features"
+            },
+            {
+                category: "Splunk Apps and Add-ons",
+                question: "What is an add-on in Splunk?",
+                number: "Q34",
+                options: [
+                    "A collection of apps",
+                    "A set of pre-built knowledge objects for integration with external systems",
+                    "A tool for importing data into Splunk",
+                    "A custom report template"
+                ],
+                answer: "A set of pre-built knowledge objects for integration with external systems"
+            },
+            {
+                category: "Data Parsing and Field Extraction",
+                question: "Which of the following is used to extract fields from raw data?",
+                number: "Q35",
+                options: [
+                    "rex command",
+                    "eval command",
+                    "stats command",
+                    "table command"
+                ],
+                answer: "rex command"
+            },
+            {
+                category: "Data Parsing and Field Extraction",
+                question: "What does the kv command do?",
+                number: "Q36",
+                options: [
+                    "Extracts key-value pairs from event data",
+                    "Filters events based on key-value pairs",
+                    "Displays events in key-value format",
+                    "None of the above"
+                ],
+                answer: "Extracts key-value pairs from event data"
+            },
+            {
+                category: "Splunk Deployment and Scaling",
+                question: "What is the primary function of a search head in Splunk?",
+                number: "Q37",
+                options: [
+                    "Stores indexed data",
+                    "Performs searches and visualizes results",
+                    "Forwards data to other systems",
+                    "Manages user authentication"
+                ],
+                answer: "Performs searches and visualizes results"
+            },
+            {
+                category: "Splunk Deployment and Scaling",
+                question: "Which Splunk component handles the clustering of indexers?",
+                number: "Q38",
+                options: [
+                    "Indexer Cluster Master",
+                    "Search Head Cluster",
+                    "Deployment Server",
+                    "License Manager"
+                ],
+                answer: "Indexer Cluster Master"
+            },
+            {
+                category: "Splunk Alerts and Scheduling",
+                question: "How can you configure an alert to send an email when triggered?",
+                number: "Q39",
+                options: [
+                    "Add an email action in the alert configuration",
+                    "Set up an external email server",
+                    "Use the sendmail command",
+                    "Alerts cannot send emails"
+                ],
+                answer: "Add an email action in the alert configuration"
+            },
+            {
+                category: "Splunk Alerts and Scheduling",
+                question: "What type of alert is triggered only when the condition occurs at a specific time?",
+                number: "Q40",
+                options: [
+                    "Real-time alert",
+                    "Scheduled alert",
+                    "Triggered alert",
+                    "Event-based alert"
+                ],
+                answer: "Scheduled alert"
+            },
+            {
+                category: "Splunk Knowledge Management",
+                question: "What is the function of a field extraction in Splunk?",
+                number: "Q41",
+                options: [
+                    "It creates a summary of event data",
+                    "It defines new fields or modifies existing fields",
+                    "It removes unwanted fields from the results",
+                    "It creates reports based on extracted fields"
+                ],
+                answer: "It defines new fields or modifies existing fields"
+            },
+            {
+                category: "Splunk Knowledge Management",
+                question: "What is the purpose of the lookups feature in Splunk?",
+                number: "Q42",
+                options: [
+                    "To schedule reports",
+                    "To link event data with external data sources",
+                    "To remove duplicate events",
+                    "To generate statistics"
+                ],
+                answer: "To link event data with external data sources"
+            },
+            {
+                category: "Splunk Search Optimization",
+                question: "How can you improve the performance of a search in Splunk?",
+                number: "Q43",
+                options: [
+                    "Use the index keyword in your search",
+                    "Limit the search to specific time ranges",
+                    "Use summary indexing for large datasets",
+                    "All of the above"
+                ],
+                answer: "All of the above"
+            },
+            {
+                category: "Splunk Search Optimization",
+                question: "What command can be used to limit the number of results returned in a search?",
+                number: "Q44",
+                options: [
+                    "head",
+                    "limit",
+                    "select",
+                    "truncate"
+                ],
+                answer: "head"
+            },
+            {
+                category: "Splunk Licensing and Management",
+                question: "What is a common reason for a license to be violated in Splunk?",
+                number: "Q45",
+                options: [
+                    "Searching beyond the available indexes",
+                    "Exceeding the maximum daily indexing volume",
+                    "Using unsupported data formats",
+                    "Connecting to too many forwarders"
+                ],
+                answer: "Exceeding the maximum daily indexing volume"
+            },
+            {
+                category: "Splunk Licensing and Management",
+                question: "How can you view license usage in Splunk?",
+                number: "Q46",
+                options: [
+                    "From the License Manager in the Settings menu",
+                    "Through the Deployment Server dashboard",
+                    "By searching the internal index",
+                    "From the Search Head interface"
+                ],
+                answer: "From the License Manager in the Settings menu"
+            },
+            {
+                category: "Splunk Data Forwarding",
+                question: "What is the purpose of a Heavy Forwarder in Splunk?",
+                number: "Q47",
+                options: [
+                    "To collect, parse, and forward raw event data",
+                    "To store indexed data",
+                    "To manage Splunk configuration",
+                    "To manage user access permissions"
+                ],
+                answer: "To collect, parse, and forward raw event data"
+            },
+            {
+                category: "Splunk Data Forwarding",
+                question: "What command is used to forward events to another Splunk instance?",
+                number: "Q48",
+                options: [
+                    "forward",
+                    "send",
+                    "splunk forward",
+                    "splunk add forward-server"
+                ],
+                answer: "splunk add forward-server"
+            },
+            {
+                category: "Splunk Clustering and High Availability",
+                question: "What does the Search Head Cluster allow?",
+                number: "Q49",
+                options: [
+                    "Multiple users to share search jobs",
+                    "Data to be indexed across multiple servers",
+                    "Ensures high availability for Splunk data forwarding",
+                    "All of the above"
+                ],
+                answer: "Multiple users to share search jobs"
+            },
+            {
+                category: "Splunk Clustering and High Availability",
+                question: "What is the function of the Indexer Cluster in Splunk?",
+                number: "Q50",
+                options: [
+                    "To ensure high availability for indexing",
+                    "To provide redundancy for search heads",
+                    "To aggregate event data",
+                    "To forward events to other systems"
+                ],
+                answer: "To ensure high availability for indexing"
+            },
+            {
+                category: "Splunk Management and Configuration",
+                question: "What configuration file is used to define Splunk's indexing behavior?",
+                number: "Q51",
+                options: [
+                    "indexes.conf",
+                    "inputs.conf",
+                    "props.conf",
+                    "outputs.conf"
+                ],
+                answer: "indexes.conf"
+            },
+            {
+                category: "Splunk Management and Configuration",
+                question: "Where are Splunk search queries stored for easy access?",
+                number: "Q52",
+                options: [
+                    "Saved Searches in the Splunk UI",
+                    "In a log file on the search head",
+                    "In a database",
+                    "In the knowledge objects section"
+                ],
+                answer: "Saved Searches in the Splunk UI"
+            },
+            {
+                category: "Advanced Searching",
+                question: "Which of the following is used to calculate the frequency distribution of field values?",
+                number: "Q53",
+                options: [
+                    "stats count by field",
+                    "timechart",
+                    "chart",
+                    "table"
+                ],
+                answer: "stats count by field"
+            },
+            {
+                category: "Advanced Searching",
+                question: "How can you perform a case-insensitive search?",
+                number: "Q54",
+                options: [
+                    "Use the ignorecase option",
+                    "Use the lowercase function",
+                    "Use the match command",
+                    "Case-insensitive searches are not allowed"
+                ],
+                answer: "Use the ignorecase option"
+            },
+            {
+                category: "Troubleshooting and Maintenance",
+                question: "How can you check for the status of Splunk services?",
+                number: "Q55",
+                options: [
+                    "splunk status",
+                    "splunk service status",
+                    "service splunk status",
+                    "systemctl status splunk"
+                ],
+                answer: "splunk status"
+            },
+            {
+                category: "Troubleshooting and Maintenance",
+                question: "What is the primary function of the internal index in Splunk?",
+                number: "Q56",
+                options: [
+                    "Stores user data",
+                    "Stores search job metadata",
+                    "Stores Splunk logs and diagnostic data",
+                    "Stores configuration data"
+                ],
+                answer: "Stores Splunk logs and diagnostic data"
+            },
+            {
+                category: "Splunk Search Processing Language (SPL)",
+                question: "What does the top command do in Splunk?",
+                number: "Q57",
+                options: [
+                    "Shows the most frequent values for a field",
+                    "Displays a summary of all fields",
+                    "Sorts events by timestamp",
+                    "Summarizes events based on a time range"
+                ],
+                answer: "Shows the most frequent values for a field"
+            },
+            {
+                category: "Splunk Search Processing Language (SPL)",
+                question: "What is the purpose of the rename command in Splunk?",
+                number: "Q58",
+                options: [
+                    "To change the name of a field",
+                    "To rename saved searches",
+                    "To modify the index name",
+                    "To update event metadata"
+                ],
+                answer: "To change the name of a field"
+            },
+            {
+                category: "Splunk Data Integration",
+                question: "What is the best method for importing structured data (e.g., CSV) into Splunk?",
+                number: "Q59",
+                options: [
+                    "Use the inputcsv command",
+                    "Add data through the Data Inputs page",
+                    "Use a script to load data manually",
+                    "Import through a forwarder"
+                ],
+                answer: "Add data through the Data Inputs page"
+            },
+            {
+                category: "Splunk Data Integration",
+                question: "What type of external data can be integrated with Splunk for analysis?",
+                number: "Q60",
+                options: [
+                    "CSV files",
+                    "JSON data",
+                    "REST API calls",
+                    "All of the above"
+                ],
+                answer: "All of the above"
+            }
+        ];
+
+        // Variables to track quiz state
+        let currentQuestionIndex = 0;
+        let userAnswers = new Array(quizData.length).fill(null);
+        let score = 0;
+
+        // DOM Elements
+        const quizContainer = document.getElementById('quiz-container');
+        const resultsContainer = document.getElementById('results-container');
+        const questionCounter = document.getElementById('question-counter');
+        const scoreDisplay = document.getElementById('score-display');
+        const progressBar = document.getElementById('progress-bar');
+        const categoryTag = document.getElementById('category-tag');
+        const questionText = document.getElementById('question-text');
+        const questionNumber = document.getElementById('question-number');
+        const answerOptions = document.getElementById('answer-options');
+        const feedbackContainer = document.getElementById('feedback-container');
+        const feedbackText = document.getElementById('feedback-text');
+        const correctAnswer = document.getElementById('correct-answer');
+        const prevBtn = document.getElementById('prev-btn');
+        const submitBtn = document.getElementById('submit-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const finalScore = document.getElementById('final-score');
+        const correctCount = document.getElementById('correct-count');
+        const incorrectCount = document.getElementById('incorrect-count');
+        const restartBtn = document.getElementById('restart-btn');
+
+        // Initialize the quiz
+        function initQuiz() {
+            currentQuestionIndex = 0;
+            userAnswers = new Array(quizData.length).fill(null);
+            score = 0;
+            displayQuestion();
+            updateScore();
+            quizContainer.classList.remove('hidden');
+            resultsContainer.classList.add('hidden');
+            window.scrollTo(0, 0);
+        }
+
+        // Display the current question
+        function displayQuestion() {
+            const currentQuestion = quizData[currentQuestionIndex];
+            
+            // Update question content
+            categoryTag.textContent = currentQuestion.category;
+            questionText.textContent = currentQuestion.question;
+            questionNumber.textContent = currentQuestion.number;
+            questionCounter.textContent = `Question ${currentQuestionIndex + 1} of ${quizData.length}`;
+            
+            // Update progress bar
+            const progressPercentage = ((currentQuestionIndex + 1) / quizData.length) * 100;
+            progressBar.style.width = `${progressPercentage}%`;
+            
+            // Create answer options
+            answerOptions.innerHTML = '';
+            currentQuestion.options.forEach((option, index) => {
+                const optionLabel = String.fromCharCode(97 + index); // a, b, c, d
+                const isChecked = userAnswers[currentQuestionIndex] === option;
+                
+                const optionDiv = document.createElement('div');
+                optionDiv.className = 'flex items-start space-x-2';
+                
+                optionDiv.innerHTML = `
+                    <div class="flex items-center h-5 mt-1">
+                        <input id="option-${index}" name="answer-option" type="radio" 
+                            class="w-4 h-4 text-primary border-gray-300 focus:ring-primary dark:focus:ring-primary dark:bg-gray-700 dark:border-gray-600"
+                            value="${option}" ${isChecked ? 'checked' : ''}>
+                    </div>
+                    <div class="flex items-center">
+                        <label for="option-${index}" class="text-base font-medium text-gray-900 dark:text-gray-100 cursor-pointer flex items-center">
+                            <span class="h-6 w-6 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center mr-3 text-gray-700 dark:text-gray-300 font-semibold">${optionLabel}</span>
+                            ${option}
+                        </label>
+                    </div>
+                `;
+                
+                answerOptions.appendChild(optionDiv);
+            });
+            
+            // Hide feedback
+            feedbackContainer.classList.add('hidden');
+            
+            // Update buttons
+            prevBtn.disabled = currentQuestionIndex === 0;
+            
+            // If user has already answered, show feedback
+            if (userAnswers[currentQuestionIndex] !== null) {
+                showFeedback();
+            }
+        }
+
+        // Handle answer submission
+        function submitAnswer() {
+            const selectedOption = document.querySelector('input[name="answer-option"]:checked');
+            
+            if (!selectedOption) {
+                alert('Please select an answer');
+                return;
+            }
+            
+            const userAnswer = selectedOption.value;
+            const correctAnswerText = quizData[currentQuestionIndex].answer;
+            
+            // Save user's answer
+            userAnswers[currentQuestionIndex] = userAnswer;
+            
+            // Check if correct
+            const isCorrect = userAnswer === correctAnswerText;
+            
+            // Update score if this is the first time answering
+            if (userAnswers[currentQuestionIndex] !== null && isCorrect) {
+                score++;
+            }
+            
+            updateScore();
+            showFeedback();
+        }
+
+        // Show feedback for the current question
+        function showFeedback() {
+            const userAnswer = userAnswers[currentQuestionIndex];
+            const correctAnswerText = quizData[currentQuestionIndex].answer;
+            const isCorrect = userAnswer === correctAnswerText;
+            
+            feedbackContainer.classList.remove('hidden', 'bg-green-100', 'bg-red-100', 'dark:bg-green-900', 'dark:bg-red-900');
+            
+            if (isCorrect) {
+                feedbackContainer.classList.add('bg-green-100', 'dark:bg-green-900', 'dark:bg-opacity-20');
+                feedbackText.textContent = 'Correct!';
+                feedbackText.className = 'font-medium text-green-700 dark:text-green-400';
+                correctAnswer.textContent = '';
+            } else {
+                feedbackContainer.classList.add('bg-red-100', 'dark:bg-red-900', 'dark:bg-opacity-20');
+                feedbackText.textContent = 'Incorrect!';
+                feedbackText.className = 'font-medium text-red-700 dark:text-red-400';
+                correctAnswer.textContent = `The correct answer is: ${correctAnswerText}`;
+                correctAnswer.className = 'mt-2 text-red-700 dark:text-red-400';
+            }
+            
+            // Disable radio buttons after submission
+            const radioButtons = document.querySelectorAll('input[name="answer-option"]');
+            radioButtons.forEach(radio => {
+                radio.disabled = true;
+                
+                // Highlight correct and incorrect answers
+                if (radio.value === correctAnswerText) {
+                    const label = document.querySelector(`label[for="${radio.id}"]`);
+                    label.classList.add('text-green-700', 'dark:text-green-400');
+                } else if (radio.value === userAnswer && radio.value !== correctAnswerText) {
+                    const label = document.querySelector(`label[for="${radio.id}"]`);
+                    label.classList.add('text-red-700', 'dark:text-red-400');
+                }
+            });
+            
+            // Change submit button to next
+            submitBtn.textContent = 'Submit Answer';
+            submitBtn.disabled = true;
+        }
+
+        // Update the score display
+        function updateScore() {
+            const answeredCount = userAnswers.filter(answer => answer !== null).length;
+            scoreDisplay.textContent = `Score: ${score}/${answeredCount}`;
+        }
+
+        // Navigate to the next question
+        function nextQuestion() {
+            if (currentQuestionIndex < quizData.length - 1) {
+                currentQuestionIndex++;
+                displayQuestion();
+                submitBtn.disabled = false;
+            } else {
+                showResults();
+            }
+        }
+
+        // Navigate to the previous question
+        function prevQuestion() {
+            if (currentQuestionIndex > 0) {
+                currentQuestionIndex--;
+                displayQuestion();
+                submitBtn.disabled = userAnswers[currentQuestionIndex] !== null;
+            }
+        }
+
+        // Show final results
+        function showResults() {
+            quizContainer.classList.add('hidden');
+            resultsContainer.classList.remove('hidden');
+            
+            const answeredQuestions = userAnswers.filter(answer => answer !== null).length;
+            const unansweredQuestions = quizData.length - answeredQuestions;
+            const correctAnswers = score;
+            const incorrectAnswers = answeredQuestions - correctAnswers;
+            
+            finalScore.textContent = `${score}/${quizData.length}`;
+            correctCount.textContent = correctAnswers;
+            incorrectCount.textContent = incorrectAnswers;
+            
+            window.scrollTo(0, 0);
+        }
+
+        // Event Listeners
+        submitBtn.addEventListener('click', submitAnswer);
+        nextBtn.addEventListener('click', nextQuestion);
+        prevBtn.addEventListener('click', prevQuestion);
+        restartBtn.addEventListener('click', initQuiz);
+        
+        // Radio button change event to enable submit button
+        answerOptions.addEventListener('change', function(e) {
+            if (e.target.type === 'radio') {
+                submitBtn.disabled = false;
+            }
+        });
+
+        // Start the quiz
+        initQuiz();
+    </script>
+</body>
+</html>

@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Splunk Troubleshooting Quiz</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#5D5CDE',
+                        secondary: '#4B4BA8',
+                        dark: {
+                            bg: '#181818',
+                            card: '#222222',
+                            text: '#F3F4F6'
+                        },
+                        light: {
+                            bg: '#FFFFFF',
+                            card: '#F9FAFB',
+                            text: '#1F2937'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .fade-in {
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        .option-hover:hover {
+            transform: translateY(-2px);
+            transition: transform 0.2s;
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-light-bg dark:bg-dark-bg text-light-text dark:text-dark-text transition-colors duration-200">
+    <div class="container mx-auto px-4 py-8 max-w-3xl">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-3xl md:text-4xl font-bold text-primary mb-2">Splunk Troubleshooting Quiz</h1>
+            <p class="text-gray-600 dark:text-gray-300">Test your knowledge on Splunk troubleshooting (Modules 1-7)</p>
+        </div>
+
+        <!-- Start Screen -->
+        <div id="start-screen" class="bg-light-card dark:bg-dark-card rounded-lg shadow-lg p-6 md:p-8 mb-6 fade-in">
+            <h2 class="text-2xl font-bold mb-4 text-primary">Ready to test your Splunk knowledge?</h2>
+            <p class="mb-6">This quiz contains questions about Splunk troubleshooting topics including performance, indexing, deployment, and more.</p>
+            
+            <div class="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4 mb-6">
+                <div class="flex-1">
+                    <label for="num-questions" class="block text-sm font-medium mb-1">Number of Questions</label>
+                    <select id="num-questions" class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-base">
+                        <option value="10">10 Questions</option>
+                        <option value="20">20 Questions</option>
+                        <option value="50">50 Questions</option>
+                        <option value="100">All Questions (100)</option>
+                    </select>
+                </div>
+                <div class="flex-1">
+                    <label for="difficulty" class="block text-sm font-medium mb-1">Difficulty</label>
+                    <select id="difficulty" class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-base">
+                        <option value="normal">Normal</option>
+                        <option value="hard">Hard (No Hints)</option>
+                    </select>
+                </div>
+            </div>
+            
+            <button id="start-btn" class="w-full bg-primary hover:bg-secondary text-white font-medium py-3 px-4 rounded-md transition-colors duration-200 text-lg">
+                Start Quiz
+            </button>
+        </div>
+
+        <!-- Quiz Container (Initially Hidden) -->
+        <div id="quiz-container" class="hidden">
+            <!-- Progress Bar -->
+            <div class="bg-light-card dark:bg-dark-card rounded-lg shadow p-4 mb-6">
+                <div class="flex justify-between items-center mb-2">
+                    <span id="progress-text" class="text-sm font-medium">Question 1 of 10</span>
+                    <span id="score-text" class="text-sm font-medium">Score: 0</span>
+                </div>
+                <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5">
+                    <div id="progress-bar" class="bg-primary h-2.5 rounded-full" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <!-- Question Card -->
+            <div id="question-card" class="bg-light-card dark:bg-dark-card rounded-lg shadow-lg p-6 md:p-8 mb-6 fade-in">
+                <h2 id="question-text" class="text-xl md:text-2xl font-semibold mb-6"></h2>
+                
+                <div id="options-container" class="space-y-3 mb-6">
+                    <!-- Options will be inserted here dynamically -->
+                </div>
+                
+                <div id="feedback" class="hidden rounded-md p-4 mb-6">
+                    <!-- Feedback content will be inserted here -->
+                </div>
+                
+                <div class="flex justify-between">
+                    <button id="next-btn" class="bg-primary hover:bg-secondary text-white font-medium py-2 px-6 rounded-md transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
+                        Next Question
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results Screen (Initially Hidden) -->
+        <div id="results-screen" class="hidden bg-light-card dark:bg-dark-card rounded-lg shadow-lg p-6 md:p-8 fade-in">
+            <h2 class="text-2xl font-bold mb-4 text-primary">Quiz Results</h2>
+            <div id="results-summary" class="mb-6">
+                <!-- Results summary will be inserted here -->
+            </div>
+            
+            <div class="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4">
+                <button id="review-btn" class="flex-1 bg-primary hover:bg-secondary text-white font-medium py-3 px-4 rounded-md transition-colors duration-200">
+                    Review Answers
+                </button>
+                <button id="restart-btn" class="flex-1 bg-gray-600 hover:bg-gray-700 text-white font-medium py-3 px-4 rounded-md transition-colors duration-200">
+                    Restart Quiz
+                </button>
+            </div>
+        </div>
+
+        <!-- Review Screen (Initially Hidden) -->
+        <div id="review-screen" class="hidden">
+            <div class="bg-light-card dark:bg-dark-card rounded-lg shadow-lg p-6 md:p-8 mb-6">
+                <h2 class="text-2xl font-bold mb-4 text-primary">Review Your Answers</h2>
+                <div id="review-container" class="space-y-6">
+                    <!-- Review items will be inserted here -->
+                </div>
+                
+                <div class="mt-8">
+                    <button id="back-to-results-btn" class="bg-primary hover:bg-secondary text-white font-medium py-2 px-6 rounded-md transition-colors duration-200">
+                        Back to Results
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Check for dark mode preference
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.documentElement.classList.add('dark');
+        }
+        
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
+            if (event.matches) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        });
+
+        // Parse the Q&A data
+        const rawQuestions = [
+            {
+                question: "How can you improve search performance for users?",
+                answer: "By using base searches, search macros, event sampling, and indexing best practices."
+            },
+            {
+                question: "How can duplicate indexing be detected?",
+                answer: "By checking splunkd logs for WatchedFile component and comparing _indextime values."
+            },
+            {
+                question: "What component helps distribute search loads across peers?",
+                answer: "The Search Head and Search Peer topology."
+            },
+            {
+                question: "What are signs that apps are not deploying properly to clients?",
+                answer: "Clients may not contact the correct DS, or whitelist/blacklist settings might be incorrect."
+            },
+            {
+                question: "How can you detect skipped or delayed searches?",
+                answer: "By checking scheduler.log and looking for 'skipped' entries."
+            },
+            {
+                question: "What does a 'blocked=true' status in a queue indicate?",
+                answer: "That the queue is full and processing is delayed or halted."
+            },
+            {
+                question: "Where do you find errors related to search artifacts or permissions?",
+                answer: "In the splunkd.log or audit.log."
+            },
+            {
+                question: "What is the fishbucket and its role?",
+                answer: "It stores CRC and seek pointers to prevent re-indexing files."
+            },
+            {
+                question: "Which component determines the event boundary and performs timestamp extraction?",
+                answer: "The aggregator processor in the merging pipeline."
+            },
+            {
+                question: "Which Splunk log file contains internal events for each processor?",
+                answer: "splunkd.log located in the _internal index."
+            },
+            {
+                question: "What command shows the input status of monitored files?",
+                answer: "splunk list inputstatus or the REST endpoint /services/admin/inputstatus/TailingProcessor:FileStatus."
+            },
+            {
+                question: "Which log file contains the search execution details?",
+                answer: "search.log, stored in SPLUNK_HOME/var/run/splunk/dispatch/<sid>/"
+            },
+            {
+                question: "Where can the status of queues and pipelines be found?",
+                answer: "In metrics.log under group=queue or group=pipeline."
+            },
+            {
+                question: "What is the function of metrics.log in identifying indexing problems?",
+                answer: "It shows queue sizes, CPU usage, throughput, and blocked queues which can help pinpoint bottlenecks."
+            },
+            {
+                question: "What component tracks indexing volume against license usage?",
+                answer: "The License Manager and its associated logs."
+            },
+            {
+                question: "What file is edited for advanced deployment configurations?",
+                answer: "serverclass.conf on the deployment server."
+            },
+            {
+                question: "What are symptoms of poor search performance?",
+                answer: "Long dispatch times, low completion percentages, or skipped searches."
+            },
+            {
+                question: "Where can you verify user roles and capabilities?",
+                answer: "In authorize.conf and via the Splunk Web UI under Settings > Access Controls."
+            },
+            {
+                question: "How does license overuse manifest in Splunk?",
+                answer: "You'll see warnings in license.log, and Splunk will enter a restricted search mode."
+            },
+            {
+                question: "What is the purpose of Splunk's diag tool?",
+                answer: "It gathers logs, configurations, and system information to help diagnose issues and is anonymized before sharing with Splunk."
+            },
+            {
+                question: "What logs provide insight into deployment server activity?",
+                answer: "Logs from the DS component in _internal index."
+            }
+        ];
+
+        // Remove duplicates from the raw questions by using question as a key
+        const uniqueQuestions = Array.from(
+            new Map(rawQuestions.map(item => [item.question, item])).values()
+        );
+
+        // Generate wrong answers for each question
+        function generateQuizData(questions) {
+            return questions.map(q => {
+                // Get 3 random wrong answers from other questions
+                const otherAnswers = questions
+                    .filter(other => other.question !== q.question)
+                    .map(other => other.answer)
+                    .sort(() => 0.5 - Math.random())
+                    .slice(0, 3);
+                
+                // Combine correct answer with wrong answers and shuffle
+                const options = [q.answer, ...otherAnswers].sort(() => 0.5 - Math.random());
+                
+                return {
+                    question: q.question,
+                    options: options,
+                    correctAnswer: q.answer
+                };
+            });
+        }
+
+        // Quiz state
+        let quizData = [];
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let userAnswers = [];
+        let numQuestions = 10;
+        let showHints = true;
+
+        // DOM elements
+        const startScreen = document.getElementById('start-screen');
+        const quizContainer = document.getElementById('quiz-container');
+        const resultsScreen = document.getElementById('results-screen');
+        const reviewScreen = document.getElementById('review-screen');
+        const questionCard = document.getElementById('question-card');
+        const questionText = document.getElementById('question-text');
+        const optionsContainer = document.getElementById('options-container');
+        const progressBar = document.getElementById('progress-bar');
+        const progressText = document.getElementById('progress-text');
+        const scoreText = document.getElementById('score-text');
+        const nextBtn = document.getElementById('next-btn');
+        const feedback = document.getElementById('feedback');
+        const resultsSummary = document.getElementById('results-summary');
+        const reviewContainer = document.getElementById('review-container');
+        
+        // Start quiz
+        document.getElementById('start-btn').addEventListener('click', () => {
+            numQuestions = parseInt(document.getElementById('num-questions').value);
+            showHints = document.getElementById('difficulty').value === 'normal';
+            
+            // Shuffle and slice the questions based on user selection
+            const shuffledQuestions = [...uniqueQuestions].sort(() => 0.5 - Math.random()).slice(0, numQuestions);
+            quizData = generateQuizData(shuffledQuestions);
+            
+            startScreen.classList.add('hidden');
+            quizContainer.classList.remove('hidden');
+            
+            // Reset quiz state
+            currentQuestionIndex = 0;
+            score = 0;
+            userAnswers = [];
+            
+            // Load first question
+            loadQuestion();
+        });
+
+        // Load question
+        function loadQuestion() {
+            const question = quizData[currentQuestionIndex];
+            
+            // Update question text
+            questionText.textContent = question.question;
+            
+            // Clear options
+            optionsContainer.innerHTML = '';
+            
+            // Add options
+            question.options.forEach((option, index) => {
+                const optionElement = document.createElement('div');
+                optionElement.className = 'option p-4 border border-gray-200 dark:border-gray-700 rounded-md cursor-pointer transition-all duration-200 option-hover';
+                optionElement.innerHTML = `
+                    <div class="flex items-start">
+                        <div class="flex-shrink-0 h-5 w-5 relative top-0.5">
+                            <div class="h-5 w-5 border-2 border-gray-300 dark:border-gray-600 rounded-full"></div>
+                        </div>
+                        <div class="ml-3 text-sm md:text-base">
+                            <label class="font-medium cursor-pointer">${option}</label>
+                        </div>
+                    </div>
+                `;
+                
+                optionElement.addEventListener('click', () => selectOption(option, optionElement));
+                optionsContainer.appendChild(optionElement);
+            });
+            
+            // Update progress
+            progressBar.style.width = `${((currentQuestionIndex) / numQuestions) * 100}%`;
+            progressText.textContent = `Question ${currentQuestionIndex + 1} of ${numQuestions}`;
+            scoreText.textContent = `Score: ${score}`;
+            
+            // Hide next button until an option is selected
+            nextBtn.disabled = true;
+            
+            // Hide feedback
+            feedback.classList.add('hidden');
+            
+            // Trigger animation
+            questionCard.classList.remove('fade-in');
+            void questionCard.offsetWidth; // Force reflow
+            questionCard.classList.add('fade-in');
+        }
+
+        // Select option
+        function selectOption(selectedOption, optionElement) {
+            // Prevent selection if already selected
+            if (nextBtn.disabled === false) return;
+            
+            const question = quizData[currentQuestionIndex];
+            const isCorrect = selectedOption === question.correctAnswer;
+            
+            // Store user answer
+            userAnswers.push({
+                question: question.question,
+                userAnswer: selectedOption,
+                correctAnswer: question.correctAnswer,
+                isCorrect: isCorrect
+            });
+            
+            // Update score
+            if (isCorrect) {
+                score++;
+                scoreText.textContent = `Score: ${score}`;
+            }
+            
+            // Style options
+            const options = document.querySelectorAll('.option');
+            options.forEach(option => {
+                const optionText = option.querySelector('label').textContent;
+                
+                // Disable all options
+                option.classList.remove('cursor-pointer', 'option-hover');
+                option.classList.add('cursor-default');
+                
+                if (optionText === selectedOption) {
+                    if (isCorrect) {
+                        option.classList.add('bg-green-100', 'dark:bg-green-900/30', 'border-green-300', 'dark:border-green-700');
+                        option.querySelector('.h-5.w-5').classList.add('bg-green-500', 'border-green-500', 'dark:bg-green-500', 'dark:border-green-500');
+                    } else {
+                        option.classList.add('bg-red-100', 'dark:bg-red-900/30', 'border-red-300', 'dark:border-red-700');
+                        option.querySelector('.h-5.w-5').classList.add('bg-red-500', 'border-red-500', 'dark:bg-red-500', 'dark:border-red-500');
+                    }
+                } else if (optionText === question.correctAnswer && !isCorrect) {
+                    // Highlight correct answer if user selected wrong option
+                    option.classList.add('bg-green-100', 'dark:bg-green-900/30', 'border-green-300', 'dark:border-green-700');
+                    option.querySelector('.h-5.w-5').classList.add('bg-green-500', 'border-green-500', 'dark:bg-green-500', 'dark:border-green-500');
+                }
+            });
+            
+            // Show feedback if hints are enabled
+            if (showHints) {
+                feedback.innerHTML = isCorrect
+                    ? `<div class="bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200 p-4 rounded-md">
+                        <div class="flex">
+                            <div class="flex-shrink-0">
+                                <svg class="h-5 w-5 text-green-500" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                                </svg>
+                            </div>
+                            <div class="ml-3">
+                                <p class="text-sm font-medium">Correct! ${question.correctAnswer}</p>
+                            </div>
+                        </div>
+                      </div>`
+                    : `<div class="bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-200 p-4 rounded-md">
+                        <div class="flex">
+                            <div class="flex-shrink-0">
+                                <svg class="h-5 w-5 text-red-500" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                                </svg>
+                            </div>
+                            <div class="ml-3">
+                                <p class="text-sm font-medium">Incorrect. The correct answer is: ${question.correctAnswer}</p>
+                            </div>
+                        </div>
+                      </div>`;
+                
+                feedback.classList.remove('hidden');
+            }
+            
+            // Enable next button
+            nextBtn.disabled = false;
+        }
+
+        // Next question
+        nextBtn.addEventListener('click', () => {
+            currentQuestionIndex++;
+            
+            if (currentQuestionIndex < numQuestions) {
+                loadQuestion();
+            } else {
+                showResults();
+            }
+        });
+
+        // Show results
+        function showResults() {
+            quizContainer.classList.add('hidden');
+            resultsScreen.classList.remove('hidden');
+            
+            // Calculate percentage
+            const percentage = Math.round((score / numQuestions) * 100);
+            
+            // Determine result message
+            let resultMessage = '';
+            if (percentage >= 90) {
+                resultMessage = 'Excellent! You\'re a Splunk troubleshooting expert!';
+            } else if (percentage >= 70) {
+                resultMessage = 'Great job! You have solid Splunk troubleshooting skills.';
+            } else if (percentage >= 50) {
+                resultMessage = 'Good effort! You\'re on your way to mastering Splunk troubleshooting.';
+            } else {
+                resultMessage = 'Keep practicing! Splunk troubleshooting takes time to master.';
+            }
+            
+            // Update results summary
+            resultsSummary.innerHTML = `
+                <div class="text-center mb-6">
+                    <div class="inline-block p-4 rounded-full bg-primary/10 text-primary mb-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                    <h3 class="text-3xl font-bold mb-2">${percentage}%</h3>
+                    <p class="text-xl">${score} out of ${numQuestions} correct</p>
+                </div>
+                <p class="text-center text-lg mb-4">${resultMessage}</p>
+                <div class="border-t border-gray-200 dark:border-gray-700 pt-4">
+                    <div class="grid grid-cols-2 gap-4 text-center">
+                        <div>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">Correct</p>
+                            <p class="text-2xl font-bold text-green-500">${score}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">Incorrect</p>
+                            <p class="text-2xl font-bold text-red-500">${numQuestions - score}</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Review answers
+        document.getElementById('review-btn').addEventListener('click', () => {
+            resultsScreen.classList.add('hidden');
+            reviewScreen.classList.remove('hidden');
+            
+            // Clear review container
+            reviewContainer.innerHTML = '';
+            
+            // Add each question and answer
+            userAnswers.forEach((answer, index) => {
+                const reviewItem = document.createElement('div');
+                reviewItem.className = 'border-b border-gray-200 dark:border-gray-700 pb-4 last:border-0';
+                
+                const statusClass = answer.isCorrect 
+                    ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200' 
+                    : 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-200';
+                
+                reviewItem.innerHTML = `
+                    <div class="flex items-start mb-2">
+                        <span class="inline-flex items-center justify-center h-6 w-6 rounded-full ${statusClass} text-xs font-medium mr-3">
+                            ${answer.isCorrect ? '✓' : '✗'}
+                        </span>
+                        <h3 class="text-lg font-medium">${index + 1}. ${answer.question}</h3>
+                    </div>
+                    <div class="ml-9">
+                        <p class="mb-1">
+                            <span class="font-medium">Your answer:</span> 
+                            <span class="${answer.isCorrect ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}">
+                                ${answer.userAnswer}
+                            </span>
+                        </p>
+                        ${!answer.isCorrect ? `
+                            <p>
+                                <span class="font-medium">Correct answer:</span> 
+                                <span class="text-green-600 dark:text-green-400">${answer.correctAnswer}</span>
+                            </p>
+                        ` : ''}
+                    </div>
+                `;
+                
+                reviewContainer.appendChild(reviewItem);
+            });
+        });
+
+        // Back to results
+        document.getElementById('back-to-results-btn').addEventListener('click', () => {
+            reviewScreen.classList.add('hidden');
+            resultsScreen.classList.remove('hidden');
+        });
+
+        // Restart quiz
+        document.getElementById('restart-btn').addEventListener('click', () => {
+            resultsScreen.classList.add('hidden');
+            startScreen.classList.remove('hidden');
+        });
+    </script>
+</body>
+</html>

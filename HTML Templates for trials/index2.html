@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Splunk Power User Quiz</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#5D5CDE',
+                    }
+                }
+            }
+        }
+        
+        // Check for dark mode preference
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.documentElement.classList.add('dark');
+        }
+        
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
+            if (event.matches) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        });
+    </script>
+</head>
+<body class="bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-200 min-h-screen">
+    <div class="max-w-4xl mx-auto p-4 md:p-8">
+        <!-- Quiz Header -->
+        <header class="mb-6 text-center">
+            <h1 class="text-3xl font-bold mb-2">📝 Splunk Power User Quiz</h1>
+            <div id="progress-info" class="text-lg">
+                <span id="current-question">1</span> of <span id="total-questions">65</span> Questions
+            </div>
+            <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3 mt-4">
+                <div id="progress-bar" class="bg-primary h-3 rounded-full transition-all duration-300" style="width: 1.54%"></div>
+            </div>
+        </header>
+
+        <!-- Quiz Container -->
+        <div id="quiz-container" class="bg-gray-100 dark:bg-gray-800 rounded-lg p-6 mb-6">
+            <!-- Question -->
+            <div id="question-section" class="mb-6">
+                <div id="question-category" class="text-sm font-medium text-primary mb-2"></div>
+                <h2 id="question-text" class="text-xl font-medium mb-4"></h2>
+            </div>
+
+            <!-- Answer Options -->
+            <div id="answers-section" class="space-y-3 mb-6">
+                <!-- Answer options will be populated here -->
+            </div>
+
+            <!-- Feedback -->
+            <div id="feedback-section" class="hidden">
+                <div id="feedback-message" class="p-4 rounded-lg mb-4"></div>
+            </div>
+
+            <!-- Navigation -->
+            <div class="flex justify-between items-center">
+                <button id="prev-btn" class="px-6 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                    ← Previous
+                </button>
+                
+                <div class="text-sm text-gray-600 dark:text-gray-400">
+                    Score: <span id="current-score">0</span> / <span id="questions-answered">0</span>
+                </div>
+                
+                <button id="next-btn" class="px-6 py-2 bg-primary hover:bg-primary/90 text-white rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                    Next →
+                </button>
+            </div>
+        </div>
+
+        <!-- Final Results -->
+        <div id="results-container" class="hidden bg-gray-100 dark:bg-gray-800 rounded-lg p-6 text-center">
+            <h2 class="text-2xl font-bold mb-4">🎉 Quiz Complete!</h2>
+            <div class="text-4xl font-bold mb-4">
+                <span id="final-score">0</span> / 65
+            </div>
+            <div id="final-percentage" class="text-xl mb-4"></div>
+            <div id="performance-message" class="text-lg mb-6"></div>
+            <button id="restart-btn" class="px-6 py-3 bg-primary hover:bg-primary/90 text-white rounded-lg font-medium transition-colors">
+                Take Quiz Again
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Quiz data
+        const questions = [
+            // SPL Searching & Reporting (14 questions)
+            {
+                category: "🔍 SPL Searching & Reporting",
+                question: "Which SPL command removes duplicate values of a specified field?",
+                options: ["dedup", "sort", "stats", "unique"],
+                correct: 0
+            },
+            {
+                category: "🔍 SPL Searching & Reporting",
+                question: "What does the stats count by host command return?",
+                options: ["Number of unique events", "Number of events per host", "Sum of all fields", "Average count per host"],
+                correct: 1
+            },
+            {
+                category: "🔍 SPL Searching & Reporting",
+                question: "Which of these commands transforms events into statistical tables?",
+                options: ["where", "eval", "stats", "search"],
+                correct: 2
+            },
+            {
+                category: "🔍 SPL Searching & Reporting",
+                question: "Which command calculates a running total?",
+                options: ["streamstats", "stats", "dedup", "top"],
+                correct: 0
+            },
+            {
+                category: "🔍 SPL Searching & Reporting",
+                question: "What command is used to group events sharing the same field values into transactions?",
+                options: ["group", "transaction", "join", "append"],
+                correct: 1
+            },
+            {
+                category: "🔍 SPL Searching & Reporting",
+                question: "Which command is used to assign a calculated value to a field?",
+                options: ["eval", "where", "lookup", "dedup"],
+                correct: 0
+            },
+            {
+                category: "🔍 SPL Searching & Reporting",
+                question: "How can you display events containing the term \"error\" but not \"404\"?",
+                options: ["error NOT 404", "error AND NOT 404", "error -404", "error EXCEPT 404"],
+                correct: 1
+            },
+            {
+                category: "🔍 SPL Searching & Reporting",
+                question: "Which command returns the first value of a field by time order?",
+                options: ["earliest", "head", "first", "top"],
+                correct: 2
+            },
+            {
+                category: "🔍 SPL Searching & Reporting",
+                question: "Which command can display data over time in a time-series chart?",
+                options: ["stats", "timechart", "chart", "table"],
+                correct: 1
+            },
+            {
+                category: "🔍 SPL Searching & Reporting",
+                question: "What does the top command return?",
+                options: ["Only the first 5 events", "The top values of a field", "Sorted table", "Transaction list"],
+                correct: 1
+            },
+            {
+                category: "🔍 SPL Searching & Reporting",
+                question: "Which function can count distinct values of a field?",
+                options: ["count", "sum", "dc", "values"],
+                correct: 2
+            },
+            {
+                category: "🔍 SPL Searching & Reporting",
+                question: "Which clause limits the number of results returned?",
+                options: ["limit", "head", "tail", "sample"],
+                correct: 1
+            },
+            {
+                category: "🔍 SPL Searching & Reporting",
+                question: "To calculate the percentage of errors out of all events, which combination is correct?",
+                options: [
+                    "stats count(eval(error)) / stats count",
+                    "eval error_rate = error/total",
+                    "stats count(eval(error)) AS error_count, count AS total | eval rate = error_count/total",
+                    "top error by total"
+                ],
+                correct: 2
+            },
+            {
+                category: "🔍 SPL Searching & Reporting",
+                question: "Which function returns a list of all values for a field?",
+                options: ["list()", "values()", "count()", "sum()"],
+                correct: 1
+            },
+
+            // Knowledge Objects (10 questions)
+            {
+                category: "📚 Knowledge Objects",
+                question: "Which knowledge object is used to tag events for easier identification?",
+                options: ["lookup", "saved search", "event type", "macro"],
+                correct: 2
+            },
+            {
+                category: "📚 Knowledge Objects",
+                question: "What is a lookup table used for?",
+                options: ["Color-coding dashboards", "Comparing field values to an external file", "Limiting searches", "Indexing data"],
+                correct: 1
+            },
+            {
+                category: "📚 Knowledge Objects",
+                question: "Which field is required in a CSV lookup file?",
+                options: ["_time", "_raw", "At least one key field", "sourcetype"],
+                correct: 2
+            },
+            {
+                category: "📚 Knowledge Objects",
+                question: "What allows a user to apply a label to fields across datasets?",
+                options: ["Tags", "Macros", "Reports", "Fields.conf"],
+                correct: 0
+            },
+            {
+                category: "📚 Knowledge Objects",
+                question: "Which knowledge object allows dynamic replacement in SPL?",
+                options: ["Macros", "Tags", "Reports", "Transactions"],
+                correct: 0
+            },
+            {
+                category: "📚 Knowledge Objects",
+                question: "Which knowledge object saves SPL with a name for later use?",
+                options: ["Dashboard", "Report", "Event type", "Macro"],
+                correct: 1
+            },
+            {
+                category: "📚 Knowledge Objects",
+                question: "To associate external metadata with Splunk data, use a:",
+                options: ["Lookup definition", "Field alias", "Sourcetype override", "Event mask"],
+                correct: 0
+            },
+            {
+                category: "📚 Knowledge Objects",
+                question: "Which object lets you search based on a pre-defined classification?",
+                options: ["Lookup", "Event type", "Transaction", "Report"],
+                correct: 1
+            },
+            {
+                category: "📚 Knowledge Objects",
+                question: "Which knowledge object can schedule alerting functionality?",
+                options: ["Saved search", "Data model", "Field alias", "Macro"],
+                correct: 0
+            },
+            {
+                category: "📚 Knowledge Objects",
+                question: "To simplify recurring search logic, use:",
+                options: ["Macros", "Tags", "Inputs.conf", "Transaction"],
+                correct: 0
+            },
+
+            // Dashboards & Visualizations (10 questions)
+            {
+                category: "📊 Dashboards & Visualizations",
+                question: "What is a drilldown used for in a dashboard?",
+                options: ["Extracting fields", "Navigating to detailed views", "Coloring panels", "Exporting searches"],
+                correct: 1
+            },
+            {
+                category: "📊 Dashboards & Visualizations",
+                question: "Which tag allows dynamic interaction between panels?",
+                options: ["<filter>", "<token>", "<eval>", "<event>"],
+                correct: 1
+            },
+            {
+                category: "📊 Dashboards & Visualizations",
+                question: "Which of these is a visualization type in Splunk?",
+                options: ["Pie chart", "Summary table", "Sankey diagram", "Data cube"],
+                correct: 0
+            },
+            {
+                category: "📊 Dashboards & Visualizations",
+                question: "To create a dashboard panel, you must define at least:",
+                options: ["Title", "Search string", "Field alias", "Eval function"],
+                correct: 1
+            },
+            {
+                category: "📊 Dashboards & Visualizations",
+                question: "Which file format is used to define dashboards in XML?",
+                options: ["dashboard.conf", "default.xml", "view.xml", "form.xml"],
+                correct: 2
+            },
+            {
+                category: "📊 Dashboards & Visualizations",
+                question: "To pass a value between dashboard inputs and panels, use:",
+                options: ["lookup", "token", "macro", "eventtype"],
+                correct: 1
+            },
+            {
+                category: "📊 Dashboards & Visualizations",
+                question: "How can you limit results displayed in a visualization?",
+                options: ["Using head or limit", "Editing props.conf", "Reducing font size", "Disabling tokens"],
+                correct: 0
+            },
+            {
+                category: "📊 Dashboards & Visualizations",
+                question: "What happens if you omit title in a dashboard panel?",
+                options: ["Panel is not rendered", "Panel uses default title", "Panel is hidden", "Panel throws error"],
+                correct: 1
+            },
+            {
+                category: "📊 Dashboards & Visualizations",
+                question: "Which option lets users choose a time range in a dashboard?",
+                options: ["dropdown", "time picker", "date filter", "range slider"],
+                correct: 1
+            },
+            {
+                category: "📊 Dashboards & Visualizations",
+                question: "Where do you create and edit dashboards in Splunk Web?",
+                options: ["Settings → Reports", "Apps → Search & Reporting → Dashboards", "Settings → Alerts", "Apps → Settings"],
+                correct: 1
+            },
+
+            // Data Models & Pivots (10 questions)
+            {
+                category: "🧠 Data Models & Pivots",
+                question: "What is a data model in Splunk?",
+                options: ["A visualization template", "A predefined SPL search", "A hierarchical mapping of dataset fields", "A summary index"],
+                correct: 2
+            },
+            {
+                category: "🧠 Data Models & Pivots",
+                question: "Which UI tool helps non-technical users create reports from data models?",
+                options: ["Dashboard Editor", "Report Builder", "Pivot", "Search Assistant"],
+                correct: 2
+            },
+            {
+                category: "🧠 Data Models & Pivots",
+                question: "What is required to use the Pivot interface?",
+                options: ["Lookup", "Event type", "Data model", "Saved search"],
+                correct: 2
+            },
+            {
+                category: "🧠 Data Models & Pivots",
+                question: "In a data model, what is a constraint?",
+                options: ["A limit on time range", "A permission rule", "A base search filter", "A field alias"],
+                correct: 2
+            },
+            {
+                category: "🧠 Data Models & Pivots",
+                question: "Which of the following is true about data models?",
+                options: ["They cannot be accelerated", "They are indexed data", "They must be built using raw SPL", "They can be accelerated for performance"],
+                correct: 3
+            },
+            {
+                category: "🧠 Data Models & Pivots",
+                question: "What can be created from a Pivot table?",
+                options: ["Only dashboards", "Only saved searches", "Reports and visualizations", "Only macros"],
+                correct: 2
+            },
+            {
+                category: "🧠 Data Models & Pivots",
+                question: "Which field type allows groupings in a Pivot table?",
+                options: ["Numeric", "Time", "Object", "Row Split"],
+                correct: 3
+            },
+            {
+                category: "🧠 Data Models & Pivots",
+                question: "What does acceleration of a data model do?",
+                options: ["Compresses it", "Encrypts it", "Improves search performance", "Prevents user edits"],
+                correct: 2
+            },
+            {
+                category: "🧠 Data Models & Pivots",
+                question: "Which roles can create data models?",
+                options: ["Only admin", "Any authenticated user", "Users with accelerate_datamodel capability", "Only power user"],
+                correct: 2
+            },
+            {
+                category: "🧠 Data Models & Pivots",
+                question: "Which object do Pivot and data models help abstract for business users?",
+                options: ["Raw logs", "Complex dashboards", "SPL queries", "Index configuration"],
+                correct: 2
+            },
+
+            // Fields (13 questions)
+            {
+                category: "📦 Fields",
+                question: "Which command is used to extract fields using regular expressions?",
+                options: ["rex", "stats", "spath", "eval"],
+                correct: 0
+            },
+            {
+                category: "📦 Fields",
+                question: "What does spath do?",
+                options: ["Search field aliases", "Extract fields from JSON/XML", "Speed up dashboards", "Perform regex matching"],
+                correct: 1
+            },
+            {
+                category: "📦 Fields",
+                question: "How can you create a new field from existing fields?",
+                options: ["stats", "table", "eval", "eventtype"],
+                correct: 2
+            },
+            {
+                category: "📦 Fields",
+                question: "Which fields are always present in every event?",
+                options: ["host, source, sourcetype", "ip, time, bytes", "loglevel, status, event_id", "raw, regex, kv"],
+                correct: 0
+            },
+            {
+                category: "📦 Fields",
+                question: "What command can list all extracted fields in events?",
+                options: ["list", "fields", "table", "fieldsummary"],
+                correct: 3
+            },
+            {
+                category: "📦 Fields",
+                question: "Which field stores the original event text?",
+                options: ["_text", "_raw", "_time", "sourcetype"],
+                correct: 1
+            },
+            {
+                category: "📦 Fields",
+                question: "What field represents the event timestamp?",
+                options: ["_date", "_raw", "_time", "time_created"],
+                correct: 2
+            },
+            {
+                category: "📦 Fields",
+                question: "What is the result of fields + status in SPL?",
+                options: ["All fields are removed", "Adds the status field to display", "Hides status", "Renames all fields"],
+                correct: 1
+            },
+            {
+                category: "📦 Fields",
+                question: "What is the purpose of the fieldalias.conf file?",
+                options: ["To create saved searches", "To define sourcetype fields", "To map field aliases", "To extract timestamps"],
+                correct: 2
+            },
+            {
+                category: "📦 Fields",
+                question: "To extract values from nested JSON fields, you should use:",
+                options: ["rex", "spath", "eval", "mvexpand"],
+                correct: 1
+            },
+            {
+                category: "📦 Fields",
+                question: "Which field is used to identify the data source (e.g., logfile path)?",
+                options: ["host", "sourcetype", "source", "_raw"],
+                correct: 2
+            },
+            {
+                category: "📦 Fields",
+                question: "Which command filters results based on a condition?",
+                options: ["where", "dedup", "stats", "lookup"],
+                correct: 0
+            },
+            {
+                category: "📦 Fields",
+                question: "To format a timestamp in a specific way, which function is used?",
+                options: ["timechart", "strftime", "datefmt", "fieldformat"],
+                correct: 1
+            },
+
+            // Search Optimization & Reporting (8 questions)
+            {
+                category: "⚙️ Search Optimization & Reporting",
+                question: "What command optimizes searches on accelerated data models?",
+                options: ["datamodel", "pivot", "tstats", "stats"],
+                correct: 2
+            },
+            {
+                category: "⚙️ Search Optimization & Reporting",
+                question: "What is a summary index used for?",
+                options: ["Backup logs", "Save dashboards", "Store pre-aggregated data", "Run real-time alerts"],
+                correct: 2
+            },
+            {
+                category: "⚙️ Search Optimization & Reporting",
+                question: "What is the advantage of using tstats over stats?",
+                options: ["It shows raw logs", "It can use accelerated data", "It uses macros", "It's more readable"],
+                correct: 1
+            },
+            {
+                category: "⚙️ Search Optimization & Reporting",
+                question: "Which option improves dashboard performance?",
+                options: ["Run searches in real-time", "Use fewer panels", "Use post-process searches", "Use fieldsummary"],
+                correct: 2
+            },
+            {
+                category: "⚙️ Search Optimization & Reporting",
+                question: "Which search mode gives the fastest results?",
+                options: ["Verbose", "Smart", "Fast", "Expanded"],
+                correct: 2
+            },
+            {
+                category: "⚙️ Search Optimization & Reporting",
+                question: "How do scheduled reports help optimize performance?",
+                options: ["Compress raw data", "Index new logs", "Run searches once and cache results", "Enable backups"],
+                correct: 2
+            },
+            {
+                category: "⚙️ Search Optimization & Reporting",
+                question: "How can you reduce the time spent searching on large indexes?",
+                options: ["Use head", "Apply index and sourcetype filters early", "Use rex", "Use table"],
+                correct: 1
+            },
+            {
+                category: "⚙️ Search Optimization & Reporting",
+                question: "Which tool helps identify performance bottlenecks in a search?",
+                options: ["Search Assistant", "Monitoring Console", "Job Inspector", "Dashboard Studio"],
+                correct: 2
+            }
+        ];
+
+        // Quiz state
+        let currentQuestionIndex = 0;
+        let userAnswers = new Array(questions.length).fill(null);
+        let score = 0;
+        let questionsAnswered = 0;
+
+        // DOM elements
+        const quizContainer = document.getElementById('quiz-container');
+        const resultsContainer = document.getElementById('results-container');
+        const currentQuestionEl = document.getElementById('current-question');
+        const totalQuestionsEl = document.getElementById('total-questions');
+        const progressBar = document.getElementById('progress-bar');
+        const questionCategory = document.getElementById('question-category');
+        const questionText = document.getElementById('question-text');
+        const answersSection = document.getElementById('answers-section');
+        const feedbackSection = document.getElementById('feedback-section');
+        const feedbackMessage = document.getElementById('feedback-message');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const currentScoreEl = document.getElementById('current-score');
+        const questionsAnsweredEl = document.getElementById('questions-answered');
+        const finalScoreEl = document.getElementById('final-score');
+        const finalPercentageEl = document.getElementById('final-percentage');
+        const performanceMessageEl = document.getElementById('performance-message');
+        const restartBtn = document.getElementById('restart-btn');
+
+        // Initialize quiz
+        function initQuiz() {
+            totalQuestionsEl.textContent = questions.length;
+            loadQuestion();
+        }
+
+        // Load current question
+        function loadQuestion() {
+            const question = questions[currentQuestionIndex];
+            
+            // Update progress
+            currentQuestionEl.textContent = currentQuestionIndex + 1;
+            const progressPercent = ((currentQuestionIndex + 1) / questions.length) * 100;
+            progressBar.style.width = progressPercent + '%';
+
+            // Update question content
+            questionCategory.textContent = question.category;
+            questionText.textContent = `${currentQuestionIndex + 1}. ${question.question}`;
+
+            // Clear and populate answers
+            answersSection.innerHTML = '';
+            question.options.forEach((option, index) => {
+                const answerDiv = document.createElement('div');
+                answerDiv.className = 'answer-option p-3 border border-gray-300 dark:border-gray-600 rounded-lg cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors';
+                answerDiv.innerHTML = `
+                    <label class="flex items-center cursor-pointer">
+                        <input type="radio" name="answer" value="${index}" class="mr-3 text-base">
+                        <span class="text-base">${String.fromCharCode(97 + index)}) ${option}</span>
+                    </label>
+                `;
+                
+                answerDiv.addEventListener('click', () => selectAnswer(index));
+                answersSection.appendChild(answerDiv);
+            });
+
+            // Show previous answer if exists
+            if (userAnswers[currentQuestionIndex] !== null) {
+                selectAnswer(userAnswers[currentQuestionIndex], false);
+                showFeedback();
+            } else {
+                hideFeedback();
+            }
+
+            // Update navigation buttons
+            prevBtn.disabled = currentQuestionIndex === 0;
+            
+            if (currentQuestionIndex === questions.length - 1) {
+                nextBtn.textContent = 'Finish Quiz';
+            } else {
+                nextBtn.textContent = 'Next →';
+            }
+        }
+
+        // Select answer
+        function selectAnswer(selectedIndex, isNewAnswer = true) {
+            const question = questions[currentQuestionIndex];
+            const answerOptions = document.querySelectorAll('.answer-option');
+            
+            // Clear previous selections
+            answerOptions.forEach(option => {
+                option.classList.remove('bg-green-200', 'bg-red-200', 'dark:bg-green-800', 'dark:bg-red-800');
+                const radio = option.querySelector('input[type="radio"]');
+                radio.checked = false;
+            });
+
+            // Select the clicked option
+            const selectedOption = answerOptions[selectedIndex];
+            const selectedRadio = selectedOption.querySelector('input[type="radio"]');
+            selectedRadio.checked = true;
+
+            // Update user answers and score if this is a new answer
+            if (isNewAnswer) {
+                const wasAnswered = userAnswers[currentQuestionIndex] !== null;
+                const wasCorrect = userAnswers[currentQuestionIndex] === question.correct;
+                
+                userAnswers[currentQuestionIndex] = selectedIndex;
+                
+                if (!wasAnswered) {
+                    questionsAnswered++;
+                    if (selectedIndex === question.correct) {
+                        score++;
+                    }
+                } else {
+                    // Update score if answer changed
+                    if (wasCorrect && selectedIndex !== question.correct) {
+                        score--;
+                    } else if (!wasCorrect && selectedIndex === question.correct) {
+                        score++;
+                    }
+                }
+                
+                updateScore();
+            }
+
+            showFeedback();
+        }
+
+        // Show feedback
+        function showFeedback() {
+            const question = questions[currentQuestionIndex];
+            const selectedIndex = userAnswers[currentQuestionIndex];
+            const answerOptions = document.querySelectorAll('.answer-option');
+            
+            if (selectedIndex !== null) {
+                // Color the selected answer
+                if (selectedIndex === question.correct) {
+                    answerOptions[selectedIndex].classList.add('bg-green-200', 'dark:bg-green-800');
+                    feedbackMessage.className = 'p-4 rounded-lg mb-4 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200';
+                    feedbackMessage.innerHTML = `✅ Correct! The answer is: <strong>${question.options[question.correct]}</strong>`;
+                } else {
+                    answerOptions[selectedIndex].classList.add('bg-red-200', 'dark:bg-red-800');
+                    answerOptions[question.correct].classList.add('bg-green-200', 'dark:bg-green-800');
+                    feedbackMessage.className = 'p-4 rounded-lg mb-4 bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200';
+                    feedbackMessage.innerHTML = `❌ Incorrect. The correct answer is: <strong>${question.options[question.correct]}</strong>`;
+                }
+                
+                feedbackSection.classList.remove('hidden');
+            }
+        }
+
+        // Hide feedback
+        function hideFeedback() {
+            feedbackSection.classList.add('hidden');
+        }
+
+        // Update score display
+        function updateScore() {
+            currentScoreEl.textContent = score;
+            questionsAnsweredEl.textContent = questionsAnswered;
+        }
+
+        // Navigation functions
+        function goToPrevious() {
+            if (currentQuestionIndex > 0) {
+                currentQuestionIndex--;
+                loadQuestion();
+            }
+        }
+
+        function goToNext() {
+            if (currentQuestionIndex < questions.length - 1) {
+                currentQuestionIndex++;
+                loadQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        // Show final results
+        function showResults() {
+            quizContainer.classList.add('hidden');
+            resultsContainer.classList.remove('hidden');
+            
+            const percentage = Math.round((score / questions.length) * 100);
+            
+            finalScoreEl.textContent = score;
+            finalPercentageEl.textContent = `${percentage}%`;
+            
+            let message = '';
+            if (percentage >= 90) {
+                message = '🌟 Excellent! You\'re ready for the Splunk Power User certification!';
+            } else if (percentage >= 80) {
+                message = '👍 Great job! You have a solid understanding of Splunk Power User concepts.';
+            } else if (percentage >= 70) {
+                message = '📚 Good effort! Review the areas you missed and try again.';
+            } else if (percentage >= 60) {
+                message = '📖 Keep studying! Focus on the fundamentals and practice more.';
+            } else {
+                message = '💪 Don\'t give up! More study time is needed. Review the material and try again.';
+            }
+            
+            performanceMessageEl.textContent = message;
+        }
+
+        // Restart quiz
+        function restartQuiz() {
+            currentQuestionIndex = 0;
+            userAnswers = new Array(questions.length).fill(null);
+            score = 0;
+            questionsAnswered = 0;
+            
+            updateScore();
+            resultsContainer.classList.add('hidden');
+            quizContainer.classList.remove('hidden');
+            loadQuestion();
+        }
+
+        // Event listeners
+        prevBtn.addEventListener('click', goToPrevious);
+        nextBtn.addEventListener('click', goToNext);
+        restartBtn.addEventListener('click', restartQuiz);
+
+        // Handle radio button clicks
+        document.addEventListener('change', (e) => {
+            if (e.target.type === 'radio' && e.target.name === 'answer') {
+                selectAnswer(parseInt(e.target.value));
+            }
+        });
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft' && !prevBtn.disabled) {
+                goToPrevious();
+            } else if (e.key === 'ArrowRight') {
+                goToNext();
+            } else if (e.key >= '1' && e.key <= '4') {
+                const optionIndex = parseInt(e.key) - 1;
+                if (optionIndex < questions[currentQuestionIndex].options.length) {
+                    selectAnswer(optionIndex);
+                }
+            }
+        });
+
+        // Initialize the quiz when page loads
+        initQuiz();
+    </script>
+</body>
+</html>
